@@ -107,3 +107,14 @@ it for privileged users for obvious reasons.
 =======================================================================
 
 
+=======================================================================
+0.24 -> 0.25	 5/17/99 -sdh
+-----------------------------------------------------------------------
+Added 'truncate' or 'trunc' instead of just 'trunc' format for text
+output.
+
+Improved logic in determining whether template parameter is a text
+block, filename, or FileHandle reference.
+=======================================================================
+
+

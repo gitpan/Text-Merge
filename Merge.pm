@@ -2,7 +2,7 @@
 use strict;
 
 #
-# Text::Merge.pm - v.0.24 BETA
+# Text::Merge.pm - v.0.25 BETA
 #
 # (C) 1997, 1998, 1999 by Steven D. Harris. 
 # 
@@ -11,7 +11,7 @@ use strict;
 
 =head1 NAME
 
-Text::Merge - v.0.24  General purpose text/data merging methods in Perl. 
+Text::Merge - v.0.25  General purpose text/data merging methods in Perl. 
 
 =head1 SYNOPSIS
 
@@ -336,7 +336,7 @@ are using line by line mode.  In this case you should use a FileHandle or file p
 package Text::Merge;
 use FileHandle;
 
-$Text::Merge::VERSION = '0.24';
+$Text::Merge::VERSION = '0.25';
 
 @Text::Merge::mon = qw(Jan. Feb. Mar. Apr. May June July Aug. Sep. Oct. Nov. Dec.);
 @Text::Merge::month = qw(January February March April May June July August September October November December);
@@ -501,14 +501,14 @@ rather than sending it to the currently selected filehandle.
 sub publish_text {
 	my ($self, $template, $data, $actions) = @_;
 	my $text = '';
-	my ($fh,$line,$item);
+	my ($fh,$line,$item,$ref);
 	($$data{Data} ||  $$data{Actions}) && ($item=$data) || ($item = { 'Data'=>$data, 'Actions'=>$actions });
 	if (!$template) { 
 		warn "No template provided to ".(ref $self)."->filter.\n";
 		return 0;
-	} elsif ($template =~ /\s/s) { 
+	} elsif (!($ref=ref($template)) && !(-f $template)) { 
 		return $self->text_process($template, $item); 
-	} elsif ( ref($template)=~ /FileHandle/ && ($fh=$template) || 
+	} elsif ( $ref && $ref=~/FileHandle/ && ($fh=$template) || 
 		 (-f $template) && ($fh = new FileHandle($template))) {
 		if ($$self{_Text_Merge_LineMode}) { 
 			foreach (<$fh>) { $text .= $self->text_process($_, $item); }; 
@@ -516,7 +516,7 @@ sub publish_text {
 		($template ne $fh) && $fh->close;
 		return $text;
 	};
-	warn "Invalid template $template provided to ".(ref $self)."->filter_text()\n";
+	warn "Invalid template $template provided to ".(ref $self)."->publish_text()\n";
 	return '';
 };
 
@@ -597,7 +597,7 @@ sub convert_value {
 	/^upper/i &&     (return uc($value || '')) ||
 	/^lower/i &&     (return lc($value || '')) ||
 	/^proper/i &&    (return proper_noun($value || '')) ||
-	/^trunc(\d+)/ && (return substr($value, 0, $1)) ||
+	/^trunc(?:ate)?(\d+)/ && (return substr($value, 0, $1)) ||
 	/^words(\d+)/ && (return first_words($value, $1)) ||
 	/^para(?:graph)?(\d+)/ && (return paragraph_text($value, $1)) ||
 	/^indent(\d+)/ && (return indent_text($value, $1)) ||
