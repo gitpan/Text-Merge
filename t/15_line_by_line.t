@@ -4,7 +4,7 @@ use Text::Merge;
 $|=1;
 
 require "t/test.pl";	# $data is here
-$data = $data;
+$data=$data;
 $actions = { 'Mothers' => \&apple_pie };
 
 my $publisher = new Text::Merge;
@@ -12,22 +12,19 @@ my $publisher = new Text::Merge;
 ($ct,$passed) = (0,0);
 
 print "1..1\n";
-$publisher->line_by_line(1);
+$publisher->line_by_line(0);
 
-# my $input = new FileHandle("<t/input.txt") or die "Can't open t/input.txt for input";
-# my $output = new FileHandle(">$ofile" ) or die "Can't open $ofile for ouput";
-
-my $input = 't/input.txt';
+my $input = 't/mline.txt';
 my $ofile = 't/tmp/TPB'.$$.'.txt';
 my $output = new FileHandle(">$ofile") or die "Can't open $ofile for output";
 
 $publisher->publish_to($output, $input, $data, $actions);  $output->close; $ct++;
 
-my $diff = `perl t/diffutil t/results.txt $ofile`;
-if ($diff) { print "not ok\n";  print STDERR "DIFF: $diff\n"; } 
+my $diff = `perl t/diffutil t/mlineout.txt $ofile`;
+if ($diff) { print "not ok\n"; print STDERR "DIFF:$diff\n"; } 
 else { $passed++; print "ok\n"; };
 
-if (-e $ofile) { unlink $ofile; };
+unlink $ofile if -e $ofile;
 
 exit ($passed ne $ct || $diff && 1 || 0);
 

@@ -2,7 +2,7 @@
 use strict;
 
 #
-# Text::Merge.pm - v.0.28 BETA
+# Text::Merge.pm - v.0.29 BETA
 #
 # (C) 1997, 1998, 1999 by Steven D. Harris. 
 # 
@@ -11,7 +11,7 @@ use strict;
 
 =head1 NAME
 
-Text::Merge - v.0.28  General purpose text/data merging methods in Perl. 
+Text::Merge - v.0.29  General purpose text/data merging methods in Perl. 
 
 =head1 SYNOPSIS
 
@@ -339,7 +339,7 @@ package Text::Merge;
 use FileHandle;
 use AutoLoader 'AUTOLOAD';
 
-$Text::Merge::VERSION = '0.28';
+$Text::Merge::VERSION = '0.29';
 
 @Text::Merge::mon = qw(Jan. Feb. Mar. Apr. May June July Aug. Sep. Oct. Nov. Dec.);
 @Text::Merge::month = qw(January February March April May June July August September October November December);
@@ -420,13 +420,20 @@ sub set_delimiters {
 sub text_process {
 	my ($self, $text, $item) = @_;
 	my $ret = $text;
+	my ($open, $close) = 
+		($$self{_Text_Merge_Delimiter1},$$self{_Text_Merge_Delimiter2});
 	if (!$item) { warn "Improper call to text_process() in $0.  no item.\n";  return $ret; };
 	if (!$ret) { warn "Improper call to text_process() in $0.  no text.\n";  return $ret; };
-	$ret && $ret =~ s/$$self{_Text_Merge_Delimiter1}({(?:[^\{\}]*)\}(?:REF\:|ACT\:)|IF\:|NEG\:)(\w+(?:\:\w+)*)?\{((?:[^\}]|\}(?!$$self{_Text_Merge_Delimiter2}))*)\}$$self{_Text_Merge_Delimiter2}/$self->
-	 									handle_cond($1,$2,$3,$item)/oeg;
+	# Why won't oeg work here?  It has something to do with the interpolated delimiters
+	# $ret && $ret =~ s/$open({(?:[^\{\}]*)\}(?:REF\:|ACT\:)|IF\:|NEG\:)(\w+(?:\:\w+)*)?\{((?:[^\}]|\}(?!$close))*)\}$close/$self->
+	# 									handle_cond($1,$2,$3,$item)/oeg;
+	$ret && $ret =~ s/$open({(?:[^\{\}]*)\}(?:REF\:|ACT\:)|IF\:|NEG\:)(\w+(?:\:\w+)*)?\{((?:[^\}]|\}(?!$close))*)\}$close/$self->
+	 									handle_cond($1,$2,$3,$item)/eg;
 	$ret && $ret =~ s/({(?:[^\{\}]*)\}(?:REF\:|ACT\:)|IF\:|NEG\:)(\w+(?:\:\w+)*)?\{([^\{\}]*)\}/$self->
 	 									handle_cond($1,$2,$3,$item)/oeg;
-	$ret && $ret =~ s/$$self{_Text_Merge_Delimiter1}(REF|ACT)\:(\w+)((?:\:\w+)*)$$self{_Text_Merge_Delimiter2}/$self->handle_tag($item,$1,$2,($3 || ''))/oeg;
+	# Why won't oeg work here?  It has something to do with the interpolated delimiters
+	# $ret && $ret =~ s/$open(REF|ACT)\:(\w+)((?:\:\w+)*)$close/$self->handle_tag($item,$1,$2,($3 || ''))/oeg;
+	$ret && $ret =~ s/$open(REF|ACT)\:(\w+)((?:\:\w+)*)$close/$self->handle_tag($item,$1,$2,($3 || ''))/eg;
 	$ret && $ret =~ s/\b(REF|ACT)\:(\w+)((?:\:\w+)*)\b/$self->handle_tag($item,$1,$2,($3 || ''))/oeg;
 	return $ret;
 };
@@ -620,12 +627,6 @@ sub enc_char {
 };
 
 
-sub html_convert {
-	my $text=shift;
-	$text || return '';
-	$text =~ s/\r?\n/\n\<BR\>/g;
-	return $text;
-};
 
 
 #
@@ -666,7 +667,18 @@ sub convert_value {
 };
 
 
+sub browser_escape { return brsresc(@_); };
+sub browser_unescape { return brsruesc(@_); };
+sub html_convert { return htmlconv(@_); };
+
 __END__
+
+sub htmlconv {
+	my $text=shift;
+	$text || return '';
+	$text =~ s/\r?\n/\n\<BR\>/g;
+	return $text;
+};
 
 sub brsresc {
 	$_=shift;  

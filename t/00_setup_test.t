@@ -3,6 +3,58 @@ require "t/test.pl";
 
 print "1..12\n";
 
+unlink 't/mline.txt' if -e 't/mline.txt';
+$text = join("\n", 
+		q|REF:Test1|,
+		q|[[REF:Test1]]|,
+		q|{This }REF:Test1{.}|,
+		q|[[{This }REF:Test1{.}]]|,
+		q|Some text before REF:Test1|,
+		q|I love fire[[REF:Test1]]|,
+		q|Some text before {this }REF:Test1{.}|,
+		q|Some text before [[{this }REF:Test1{.}]]|,
+		q|REF:Test1 Some text after is here.|,
+		q|[[REF:Test1]]ites galore|,
+		q|{This }REF:Test1{.}  Some text after.|,
+		q|[[{This }REF:Test1{.}]]..some text after.|,
+		q|Some text before REF:Test1.  Some text after.|,
+		q|I love fire[[REF:Test1]]!!!|,
+		q|Some text before {this }REF:Test1{.}  Some text after.|,
+		q|Some text before [[{this }REF:Test1{.}]]..some text after.|,
+		q|ACT:Mothers|,
+		q|[[ACT:Mothers]]|,
+		q|Some text before {this }ACT:Mothers{.}  Some text after.|,
+		q|Some text before [[{this }ACT:Mothers{.}]]..some text after.|
+		
+	);
+create_file('t/mline.txt', $text) && (print "ok\n") || (print "not ok\n");
+
+unlink 't/mlineout.txt' if -e 't/mlineout.txt';
+$text = join ("\n", 
+		q|works|,
+		q|works|,
+		q|This works.|,
+		q|This works.|,
+		q|Some text before works|,
+		q|I love fireworks|,
+		q|Some text before this works.|,
+		q|Some text before this works.|,
+		q|works Some text after is here.|,
+		q|worksites galore|,
+		q|This works.  Some text after.|,
+		q|This works...some text after.|,
+		q|Some text before works.  Some text after.|,
+		q|I love fireworks!!!|,
+		q|Some text before this works.  Some text after.|,
+		q|Some text before this works...some text after.|,
+		q|apple pie|,
+		q|apple pie|,
+		q|Some text before this apple pie.  Some text after.|,
+		q|Some text before this apple pie...some text after.|
+	);
+create_file('t/mlineout.txt', $text) && (print "ok\n") || (print "not ok\n");
+
+
 unlink 't/input.txt' if -e 't/input.txt';
 create_file('t/input.txt',
 q|REF:Test1
@@ -199,104 +251,6 @@ REF:Null:list_teststyle
 |) && (print "ok\n") || (print "not ok\n");
 
 
-unlink 't/results.txt' if -e 't/results.txt';
-create_file('t/results.txt', 
-q|works
-works
-This works.
-This works.
-Some text before works
-I love fireworks
-Some text before this works.
-Some text before this works.
-works Some text after is here.
-worksites galore
-This works.  Some text after.
-This works...some text after.
-Some text before works.  Some text after.
-I love fireworks!!!
-Some text before this works.  Some text after.
-Some text before this works...some text after.
-apple pie
-apple pie
-This apple pie.
-This apple pie.
-Some text before apple pie
-I love fireapple pie
-Some text before this apple pie.
-Some text before this apple pie.
-apple pie Some text after is here.
-apple pieites galore
-This apple pie.  Some text after.
-This apple pie...some text after.
-Some text before apple pie.  Some text after.
-I love fireapple pie!!!
-Some text before this apple pie.  Some text after.
-Some text before this apple pie...some text after.
-this works
-
-this works
-
-text before this works
-text before 
-text before...this works
-text before...
-this works text after
-text after
-this works text after
-...text after
-text before this works text after
-text before text after
-text before...this works...text after
-text before...text after
-this works
-
-this works
-
-text before this works
-text before 
-text before...this works
-text before...
-this works text after
-text after
-this works text after
-...text after
-text before this works text after
-text before text after
-text before...this works...text after
-text before...text after
-BOOK
-book
-John Q. Smith
-1
-133%
-100%
-$1.33
-7/9/98
-7/9/98 9:00pm
-9:00pm
-21:00:00
-July 9, 1998
-July 9, 1998 9:00pm
-Thursday, July 9th, 1998 at 9:00pm
-Thu Jul  9 21:00:00 1998
-&#38;;&#34;&#35;&#60;&#62;
-&;"#<>
-     John Q. Smith
-The quick brown snuffle-
-uppagus jumped scr-ump-dilly-
-iciously over the lazy superca
-lifragilisticexpialidocious 
-bug. 
-
-     The quick brown snuffle-uppagus 
-     jumped scr-ump-dilly-iciously over
-     the lazy 
-     supercalifragilisticexpialidocious
-     bug. 
-|) && (print "ok\n") || (print "not ok\n");
-
-
 unlink 't/listres.txt' if -e 't/listres.txt';
 create_file('t/listres.txt',
 q|
@@ -466,59 +420,6 @@ create_file('t/recurse.txt',
 q|
 This is the recursion test:
 REF:ItemList:list_recurse1|) && (print "ok\n") || (print "not ok\n");
-
-
-unlink 't/recres.txt' if -e 't/recres.txt';
-create_file('t/recres.txt',
-q|
-This is the recursion test:
----recusion test header file---
-
-
-Recursive Test:
-	ID: 2
-	---recursion 2 test header file---
-
-
-Recursive Test:
-	---recusion test header file---
-
-
-Recursive Test:
-	ID: 2
-	---recursion 2 test header file---
-
-
-Recursive Test:
-	
-
----recursion 2 test footer file---
-
-
----------------------- 
-
-
-Recursive Test:
-	ID: 3
-	This list is empty.
-
-
----recursion test footer file---
-
-
----recursion 2 test footer file---
-
-
----------------------- 
-
-
-Recursive Test:
-	ID: 3
-	This list is empty.
-
-
----recursion test footer file---
-|) && (print "ok\n") || (print "not ok\n");
 
 
 unlink 't/recres2.txt' if -e 't/recres2.txt';

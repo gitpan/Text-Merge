@@ -1,6 +1,25 @@
 
 
 =======================================================================
+0.28 -> 0.29     11/22/99 -sdh
+-----------------------------------------------------------------------
+Fixed backward compatibility issues on function names due to renaming
+for AutoLoading in version 0.28.
+
+Reorganized and renamed the test suite for better tracking.  A test
+file is now generated using join("\n", ...) to test "line_by_line"
+mode on the local system.
+
+Fixed a bug that showed up on some versions of Perl5 as an "empty"
+delimiter string.  This appears to be related to a bug in the /o 
+regular expression modifier, which seemed to compile our delimiters
+as empty at some point in some extreme cases.  It is fixed at the
+expense of some efficiency.  I hope to use 'qr' to correct this in
+a later version.
+=======================================================================
+
+
+=======================================================================
 0.27 -> 0.28     8/24/99 -sdh
 -----------------------------------------------------------------------
 Added AutoLoading for the filter functions.
