@@ -14,7 +14,7 @@ my $publisher = new Text::Merge;
 
 ($ct,$passed) = (0,0);
 
-print "1..86\n";
+print "1..78\n";
 
 while (!eof(DATA) && ($_=<DATA>)) {
 	$ct++;
@@ -183,22 +183,6 @@ REF:TestFloat:int:percent
 100%
 $REF:TestFloat:dollars
 $1.33
-REF:TestDate:abbr
-7/9/98
-REF:TestDate:short
-7/9/98 9:00pm
-REF:TestDate:time
-9:00pm
-REF:TestDate:24h
-21:00:00
-REF:TestDate:dateonly
-July 9, 1998
-REF:TestDate:date
-July 9, 1998 9:00pm
-REF:TestDate:ext
-Thursday, July 9th, 1998 at 9:00pm
-REF:TestDate:unix
-Thu Jul  9 21:00:00 1998
 REF:TestEscape:escape
 &#38;;&#34;&#35;&#60;&#62;
 REF:TestEscape:escape:unescape

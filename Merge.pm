@@ -2,7 +2,7 @@
 use strict;
 
 #
-# Text::Merge.pm - v.0.21 BETA
+# Text::Merge.pm - v.0.22 BETA
 #
 # (C) 1997, 1998, 1999 by Steven D. Harris. 
 # 
@@ -11,7 +11,7 @@ use strict;
 
 =head1 NAME
 
-Text::Merge - v.0.21  General purpose text/data merging methods in Perl. 
+Text::Merge - v.0.22  General purpose text/data merging methods in Perl. 
 
 =head1 SYNOPSIS
 
@@ -208,6 +208,8 @@ values as SCALAR values:
 	proper	-  treats the string as a Proper Noun 
 	trunc## -  truncate the scalar to ## characters (## is an integer)
 	words## -  reduce to ## words seperated by spaces (## is an integer)
+	paragraph## -  converts to a paragraph ## columns wide
+	indent## - indents plain text ## spaces
 	int	-  converts the value to an integer
 	float	-  converts the value to a floating point value
 	string  -  converts the numeric value to a string (does nothing)
@@ -334,7 +336,7 @@ are using line by line mode.  In this case you should use a FileHandle or file p
 package Text::Merge;
 use FileHandle;
 
-$Text::Merge::VERSION = '0.21';
+$Text::Merge::VERSION = '0.22';
 
 @Text::Merge::mon = qw(Jan. Feb. Mar. Apr. May June July Aug. Sep. Oct. Nov. Dec.);
 @Text::Merge::month = qw(January February March April May June July August September October November December);
@@ -595,6 +597,8 @@ sub convert_value {
 	/^proper/i &&    (return proper_noun($value || '')) ||
 	/^trunc(\d+)/ && (return substr($value, 0, $1)) ||
 	/^words(\d+)/ && (return first_words($value, $1)) ||
+	/^para(?:graph)?(\d+)/ && (return paragraph_text($value, $1)) ||
+	/^indent(\d+)/ && (return indent_text($value, $1)) ||
 	/^int/i &&       (return int($value)) ||
 	/^float/i &&     (return (defined $value && sprintf('%f',($value || 0))) || '') ||
 	/^string/i &&    (return $value) ||
@@ -641,6 +645,53 @@ sub first_words {
 	my @sentence = split(/\s+/, $val);
 	my (@words) = splice(@sentence,0,$ct);
 	return join(' ', @words);
+};
+
+sub paragraph_text {
+	my ($input, $cols) = @_;
+	$input =~ s/\s+$//;
+	$input || return '';
+	my $rem = $cols;
+	my @words = split(/\s/, $input);
+	my @newwords;
+	my ($word, $newword, $oldword);
+	my $text = '';
+	foreach $word (@words) {
+		my $len = length($word);
+		while ($len > $cols) {
+			$text .= substr($word, 0, $rem)."\n";	
+			$word = substr($word, $rem);
+			$rem = $cols;
+			$len = length($word);
+		};
+		if ($len > $rem) { 
+		    if ($word =~ /\-/) {
+			@newwords = split(/\-/, $word);
+			$oldword = pop @newwords;
+			$word = '';
+			foreach $newword (@newwords) {
+				if (length($newword)<$rem) {
+					$rem -= length($newword)+1;
+				    	$text .= $newword.'-';
+				} else { $word .= $newword.'-'; };
+			};
+			$word .= $oldword;
+			$len = length($word);
+		    };
+		    $text .= "\n";  $rem = $cols; 
+		};
+		$text .= $word;
+		$rem -= $len;
+		if ($rem > 2) { $text .= ' ';  --$rem; }
+		else { $text .= "\n";  $rem = $cols; };
+	};
+	if ($rem ne $cols) { $text .= "\n"; };
+	return $text;
+};
+
+sub indent_text {
+	my ($val, $ind) = @_;
+	return join("\n", map { (' ' x $ind).$_ } split(/\n/, $val));
 };
 
 sub meridian_time {

@@ -2,13 +2,13 @@
 use strict;
 
 #
-# (C) 1997, 1998 by Steven D. Harris.  
+# (C) 1997, 1998, 1999 by Steven D. Harris.  
 # This software is released under the Perl Artistic License
 #
 
 =head1 NAME
 
-Text::Merge::Lists - v.0.21 Text/data merge with lists/table support
+Text::Merge::Lists - v.0.22 Text/data merge with lists/table support
 
 =head1 SYNOPSIS
 
@@ -246,7 +246,7 @@ package Text::Merge::Lists;
 use Text::Merge;
 use FileHandle;
 
-$Text::Merge::Lists::VERSION = '0.21';
+$Text::Merge::Lists::VERSION = '0.22';
 @Text::Merge::Lists::ISA = ('Text::Merge');
 
 1;
@@ -438,7 +438,7 @@ This module was written and tested under perl 5.004 and runs with C<-Tw> set and
 =head1 AUTHOR
 
 This software is released under the Perl Artistic License.  Modify as you please, but please 
-attribute releases and include all derived source code.  (C) 1997, 1998, by Steven D. Harris, 
+attribute releases and include all derived source code.  (C) 1997, 1998, 1999, by Steven D. Harris, 
 sharris@nullspace.com
 
 =cut

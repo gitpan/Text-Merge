@@ -79,3 +79,6 @@ REF:TestDate:ext
 REF:TestDate:unix
 REF:TestEscape:escape
 REF:TestEscape:escape:unescape
+REF:TestName:lower:proper:indent5
+REF:TestParagraph:paragraph30
+REF:TestParagraph:paragraph35:indent5

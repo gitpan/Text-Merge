@@ -8,3 +8,15 @@ WriteMakefile(
 				'$(INST_LIBDIR)/Merge/Lists.pm' }
 );
 
+print qq|
+
+Now do:
+
+	make
+	make test
+	make install
+
+to install the package.
+
+|;
+

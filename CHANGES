@@ -73,9 +73,20 @@ Added HTML table style support.
 
 
 =======================================================================
-0.20 -> 0.21	 2/221/99 -sdh
+0.20 -> 0.21	 2/21/99 -sdh
 -----------------------------------------------------------------------
 Fixed bug in table style display related to filler cell.
 =======================================================================
+
+
+=======================================================================
+0.21 -> 0.22	 3/4/99 -sdh
+-----------------------------------------------------------------------
+Fixed bug in test programs to handle no elegant Time Zone conversion
+in perl.  Now the test input is constructed before the tests are run.
+
+Added 'paragraph##' and 'indent##' formats for text output.
+=======================================================================
+
 
 

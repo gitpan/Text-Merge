@@ -5,7 +5,9 @@ $::data = { 'Test1' => 'works',
 	  'TestEscape' => '&;"#<>',
 	  'TestCase' => 'bOoK',
 	  'TestDate' => 900043200,
-	  'TestFruit' => 'apple'
+	  'TestFruit' => 'apple',
+	  'TestParagraph' => 'The quick brown snuffle-uppagus jumped '.
+			     'scr-ump-dilly-iciously over the lazy supercalifragilisticexpialidocious bug.'
 };
 
 
