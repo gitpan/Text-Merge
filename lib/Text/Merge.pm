@@ -2,16 +2,16 @@
 use strict;
 
 #
-# Text::Merge.pm - v.0.34 BETA
+# Text::Merge.pm - v.0.36 BETA
 #
-# (C)1997-2000 by Steven D. Harris. 
+# (C)1997-2004 by Steven D. Harris. 
 # 
 # This software is released under the Perl Artistic License
 #
 
 =head1 NAME
 
-Text::Merge - v.0.34  General purpose text/data merging methods in Perl. 
+Text::Merge - v.0.36  General purpose text/data merging methods in Perl. 
 
 =head1 SYNOPSIS
 
@@ -343,12 +343,13 @@ package Text::Merge;
 use FileHandle;
 use AutoLoader 'AUTOLOAD';
 
-$Text::Merge::VERSION = '0.35';
+our $NAME = 'Text::Merge';
+our $VERSION = '0.36';
 
-@Text::Merge::mon = qw(Jan. Feb. Mar. Apr. May June July Aug. Sep. Oct. Nov. Dec.);
-@Text::Merge::month = qw(January February March April May June July August September October November December);
-@Text::Merge::weekday = qw(Sunday Monday Tuesday Wednesday Thursday Friday Saturday);
-@Text::Merge::hex = map { ($_<16) && '%0'.sprintf('%X',$_) || sprintf('%%%2X',$_) } ( 0..255 );
+our @mon = qw(Jan. Feb. Mar. Apr. May June July Aug. Sep. Oct. Nov. Dec.);
+our @month = qw(January February March April May June July August September October November December);
+our @weekday = qw(Sunday Monday Tuesday Wednesday Thursday Friday Saturday);
+our @hex = map { ($_<16) && '%0'.sprintf('%X',$_) || sprintf('%%%2X',$_) } ( 0..255 );
 
 1;
 
@@ -681,6 +682,7 @@ sub cgi2data {
 #
 sub convert_value {
 	my ($self, $value, $style) = @_;
+    $value ||= '';
 	($_=$style) || ($_ = 'string');
 	/^upper/i &&     (return uc($value || '')) ||
 	/^lower/i &&     (return lc($value || '')) ||
@@ -689,7 +691,7 @@ sub convert_value {
 	/^words(\d+)/ && (return frstword(($value||''), $1)) ||
 	/^para(?:graph)?(\d+)/ && (return paratext(($value||''), $1)) ||
 	/^indent(\d+)/ && (return indtext(($value||''), $1)) ||
-	/^int/i &&       (return int($value)) ||
+	/^int/i &&       (return (defined $value ? int($value) : 0)) ||
 	/^float/i &&     (return (defined $value && sprintf('%f',($value || 0))) || '') ||
 	/^string/i &&    (return $value) ||
 	/^detab/i &&	 (return de_tab($value)) ||		# Convert tabs to spaces in a string
