@@ -14,14 +14,18 @@ my $publisher = new Text::Merge;
 
 ($ct,$passed) = (0,0);
 
-print "1..78\n";
+print "1..80\n";
 
 while (!eof(DATA) && ($_=<DATA>)) {
 	$ct++;
 	$line = $publisher->text_process($_, {'Data'=>$data, 'Actions'=>$actions});
 	$nextline = <DATA>;
 	if ($line eq $nextline) { $passed++; print "ok\n"; }
-	else { print "not ok\n";  print STDERR "'$line' ne '$nextline'\n"; };
+	else { 
+		print "not ok\n";  
+		chomp $line;  chomp $nextline;
+		print STDERR "'$line' ne '$nextline'\n"; 
+	};
 };
 
 exit ($passed ne $ct);
@@ -183,6 +187,10 @@ REF:TestFloat:int:percent
 100%
 $REF:TestFloat:dollars
 $1.33
+My ratio is REF:TestFloat:string.
+My ratio is 1.3312.
+REF:TestTabular:detab
+        One     Two             Buckle My Shoe. 
 REF:TestEscape:escape
 &#38;;&#34;&#35;&#60;&#62;
 REF:TestEscape:escape:unescape

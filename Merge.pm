@@ -2,16 +2,16 @@
 use strict;
 
 #
-# Text::Merge.pm - v.0.29 BETA
+# Text::Merge.pm - v.0.31 BETA
 #
-# (C) 1997, 1998, 1999 by Steven D. Harris. 
+# (C)1997-2000 by Steven D. Harris. 
 # 
 # This software is released under the Perl Artistic License
 #
 
 =head1 NAME
 
-Text::Merge - v.0.29  General purpose text/data merging methods in Perl. 
+Text::Merge - v.0.31  General purpose text/data merging methods in Perl. 
 
 =head1 SYNOPSIS
 
@@ -39,6 +39,9 @@ Text::Merge - v.0.29  General purpose text/data merging methods in Perl.
 	$success = $merge->publish_email($mailer, $headers, $template, 
 							     \%data, \%actions);
 	$success = $merge->publish_email($mailer, $headers, $template, $item);
+
+	$datahash = $merge->cgi2data();        # if you used "CGI(:standard)"
+	$datahash = $merge->cgi2data($cgi);    # if you just used CGI.pm
 
 
 =head1 DESCRIPTION
@@ -215,6 +218,7 @@ values as SCALAR values:
 	int	-  converts the value to an integer
 	float	-  converts the value to a floating point value
 	string  -  converts the numeric value to a string (does nothing)
+	detab	-  replaces tabs with spaces, aligned to 8-char columns
 	html	-  replaces newlines with HTML B<BR> tags
 	dollars	-  converts the value to 2 decimal places
 	percent	-  converts the value to a percentage
@@ -232,7 +236,7 @@ values as SCALAR values:
 	urlencode - performs a url encoding on the value (%3B)
 	urldecode - performs a url decoding (reverse of urlencode)
 
-Most of the values are self explanitory, however a few may need explanation:
+Most of the values are self-explanatory, however a few may need explanation:
 	
 The C<trunc> format must be suffixed with an integer digit to define at most 
 how many characters should be displayed, as in C<trunc14>.
@@ -339,7 +343,7 @@ package Text::Merge;
 use FileHandle;
 use AutoLoader 'AUTOLOAD';
 
-$Text::Merge::VERSION = '0.29';
+$Text::Merge::VERSION = '0.31';
 
 @Text::Merge::mon = qw(Jan. Feb. Mar. Apr. May June July Aug. Sep. Oct. Nov. Dec.);
 @Text::Merge::month = qw(January February March April May June July August September October November December);
@@ -467,16 +471,19 @@ sub handle_action {
 sub handle_cond {
 	my ($self, $pretag, $ident, $suffix, $item) = @_;
 	my ($value,$prefix,$tag,$cond) = ('','','','');
-	if ($pretag =~ /^\{(.*)\}(\w+\:)$/s) { $prefix=$1;  $tag = $2; } else { $prefix = '';  $tag = $pretag; };
-	if ($pretag !~ /ACT:/) { $value = $self->handle_tag($item, $tag, split(/\:/, $ident, 2)); }
-	else { 
+	if ($pretag =~ /^\{(.*)\}(\w+\:)$/s) { $prefix=$1;  $tag = $2; } 
+	else { $prefix = '';  $tag = $pretag; };
+	if ($pretag !~ /ACT:/) { 
+		$value = $self->handle_tag($item, $tag, split(/\:/, $ident, 2)); 
+	} else { 
 		my $func = $$item{Actions}{$ident};
 		$value = $func && &$func($$item{ItemType} && $item || $$item{Data}) || ''; 
 	};
 	$cond = $value;
 	$tag eq 'NEG:' && ($cond = !$cond);
 	($tag eq 'NEG:' || $tag eq 'IF:') && ($value = '');
-	if ((defined $cond) && ($cond || length($cond))) { return $prefix.$value.$suffix; } else { return ''; };
+	if ((defined $cond) && ($cond || length($cond))) { return $prefix.$value.$suffix; } 
+	else { return ''; };
 };
 
 
@@ -505,7 +512,11 @@ sub publish_to {
 	my ($fh,$line,$item);
 	($$data{Data} ||  $$data{Actions}) && ($item=$data) || ($item = { 'Data'=>$data, 'Actions'=>$actions });
 	if (!$template) { 
-		warn "No template provided to ".(ref $self)."->filter.\n";
+		my ($pkg, $fname, $lineno, $sname) = caller;
+		warn "No template provided to ".(ref $self)."->publish_to.\n";
+		warn "Called by $pkg\:\:$sname, line #$lineno in $fname.\n";
+		($pkg, $fname, $lineno, $sname) = caller(1);
+		warn "Called by $pkg\:\:$sname, line #$lineno in $fname.\n";
 		return 0;
 	} elsif ($template =~ /\s/s) {
 		if ($handle) {
@@ -528,7 +539,7 @@ sub publish_to {
 		($template ne $fh) && $fh->close;
 		return 1;
 	};
-	if (length($template)>30) { $template = substr($template, -30, 30); };
+	if (length($template)>50) { $template = substr($template, -30, 30); };
 	warn "Illegal template $template provided to ".(ref $self)."->filter.\n";
 	return 0;
 };
@@ -548,7 +559,11 @@ sub publish_text {
 	my ($fh,$line,$item,$ref);
 	($$data{Data} ||  $$data{Actions}) && ($item=$data) || ($item = { 'Data'=>$data, 'Actions'=>$actions });
 	if (!$template) { 
-		warn "No template provided to ".(ref $self)."->filter.\n";
+		my ($pkg, $fname, $lineno, $sname) = caller;
+		warn "No template provided to ".(ref $self)."->publish_text.\n";
+		warn "Called by $pkg\:\:$sname, line #$lineno in $fname.\n";
+		($pkg, $fname, $lineno, $sname) = caller(1);
+		warn "Called by $pkg\:\:$sname, line #$lineno in $fname.\n";
 		return 0;
 	} elsif (($template=~/(?:(?:\r?\n)|\r)/) || (!($ref=ref($template)) && !(-f $template)) ) { 
 		return $self->text_process($template, $item); 
@@ -628,6 +643,29 @@ sub enc_char {
 
 
 
+=item cgi2data($cgi)
+
+This method converts C<CGI.pm> parameters to a data hash reference suitable
+for merging.  The C<$cgi> parameter is a CGI object and is optional, but 
+you must have imported the C<:standard> methods from C<CGI.pm> if you omit 
+the C<$cgi> paramter.  This method returns a hash reference containing the
+parameters as data.  Basically it turns list values into list references and 
+puts everything in a hash keyed by field name.
+
+=cut
+sub cgi2data {
+	my ($self, $cgi) = @_;
+	my $data = {};
+	my ($k,$v,@v);
+	my @keys = $cgi ? $cgi->param : param();
+	foreach $k ($cgi->param) {
+		@v = $cgi ? $cgi->param($k) : param($k);
+		$v = (@v>1) ? [@v] : $v[0];
+		$$data{$k} = $v;
+	}
+	return $data;
+};
+
 
 #
 # local conversion function for output of each of the various styles
@@ -640,13 +678,14 @@ sub convert_value {
 	/^upper/i &&     (return uc($value || '')) ||
 	/^lower/i &&     (return lc($value || '')) ||
 	/^proper/i &&    (return propnoun($value || '')) ||
-	/^trunc(?:ate)?(\d+)/ && (return substr($value, 0, $1)) ||
-	/^words(\d+)/ && (return frstword($value, $1)) ||
-	/^para(?:graph)?(\d+)/ && (return paratext($value, $1)) ||
-	/^indent(\d+)/ && (return indtext($value, $1)) ||
+	/^trunc(?:ate)?(\d+)/ && (return substr(($value||''), 0, $1)) ||
+	/^words(\d+)/ && (return frstword(($value||''), $1)) ||
+	/^para(?:graph)?(\d+)/ && (return paratext(($value||''), $1)) ||
+	/^indent(\d+)/ && (return indtext(($value||''), $1)) ||
 	/^int/i &&       (return int($value)) ||
 	/^float/i &&     (return (defined $value && sprintf('%f',($value || 0))) || '') ||
 	/^string/i &&    (return $value) ||
+	/^detab/i &&	 (return de_tab($value)) ||		# Convert tabs to spaces in a string
 	/^html/i &&	 (return htmlconv($value)) ||		# Convert text to HTML
 	/^dollars/i &&   (return (defined $value && length($value) && sprintf('%.2f',($value || 0)) || '')) ||
 	/^percent/i &&   (return (($value<0.2) && sprintf('%.1f%%',($value*100)) || sprintf('%d%%',int($value*100)))) ||
@@ -769,28 +808,28 @@ sub meridtim {
 sub abbrdate { 
 	my $val = shift; 
 	$val || return '';
-	my @date = localtime($val);
+	my @date = localtime(int($val));
 	return ($date[4]+1).'/'.$date[3].'/'.substr(($date[5]+1900),-2,2);
 };
 
 sub shrtdate { 
 	my $val = shift; 
 	$val || return '';
-	my @date = localtime($val);
+	my @date = localtime(int($val));
 	return ($date[4]+1).'/'.$date[3].'/'.substr(($date[5]+1900),-2,2).' '.meridtim($date[2],$date[1]);
 };
 
 sub timeoday { 
 	my $val = shift; 
 	$val || return '';
-	my @date = localtime($val);
+	my @date = localtime(int($val));
 	return meridtim($date[2],$date[1]);
 };
 
 sub time24hr { 
 	my $val = shift; 
 	$val || return '';
-	my @date = localtime($val);
+	my @date = localtime(int($val));
 	my ($hour,$min,$sec) = ($date[2],$date[1],$date[0]);
 	($hour = int($hour)) < 10 && ($hour = '0'.$hour);
 	($min = int($min)) < 10 && ($min = '0'.$min);
@@ -801,7 +840,7 @@ sub time24hr {
 sub dateonly {
 	my $val = shift;
 	$val || return '';
-	my @date = localtime($val);
+	my @date = localtime(int($val));
 	my $mon = $Text::Merge::mon[$date[4]];
 	return $mon.' '.$date[3].', '.($date[5]+1900);
 };
@@ -809,7 +848,7 @@ sub dateonly {
 sub fulldate { 
 	my $val = shift;
 	$val || return '';
-	my @date = localtime($val);
+	my @date = localtime(int($val));
 	my $mon = $Text::Merge::mon[$date[4]];
 	return $mon.' '.$date[3].', '.($date[5]+1900).' '.meridtim($date[2],$date[1]);
 };
@@ -817,7 +856,7 @@ sub fulldate {
 sub extdate { 
 	my $val = shift;
 	$val || return '';
-	my @date = localtime($val);
+	my @date = localtime(int($val));
 	my $wday = $Text::Merge::weekday[$date[6]];
 	my $mon = $Text::Merge::month[$date[4]];
 	my $suff = 'th';
@@ -843,6 +882,22 @@ sub urldec {
 	return $text;
 };
 
+sub de_tab {
+	# our assumptions:  
+	#	+ newline is $\
+	#	+ tabs are 8 chars wide
+	my $text = shift;
+	$text || return $text;
+	my $newtext = '';
+	my $match = '';
+	while ($text && $text =~ s/^([^\t]*)\t//) {
+		$match = $1 || '';
+		$newtext .= $match;
+		$newtext .= ' ' x (8-(length($newtext)%8));
+	};
+	$newtext .= $text if $text;
+	return $newtext;
+};
 
 
 
@@ -850,13 +905,13 @@ sub urldec {
 
 =head1 PREREQUISITES
 
-This module was written and tested entirely in Perl 5.004 and runs with C<-Tw> set and C<use strict>.  It 
+This module was written and tested in Perl 5.005 and runs with C<-Tw> set and C<use strict>.  It 
 requires use of the package C<FileHandle> which is part of the standard perl distribution.
 
 =head1 AUTHOR
 
 This software is released under the Perl Artistic License.  Derive what you wish, as you wish, but please
-attribute releases and include derived source code.  (C) 1997, 1998 by Steven D. Harris, perl@nullspace.com
+attribute releases and include derived source code.  (C) 1997-2000 by Steven D. Harris, perl@nullspace.com
 
 =cut
 

@@ -8,7 +8,7 @@ use strict;
 
 =head1 NAME
 
-Text::Merge::Lists - v.0.29 Text/data merge with lists/table support
+Text::Merge::Lists - v.0.30 Text/data merge with lists/table support
 
 =head1 SYNOPSIS
 
@@ -255,7 +255,7 @@ package Text::Merge::Lists;
 use Text::Merge;
 use FileHandle;
 
-$Text::Merge::Lists::VERSION = '0.29';
+$Text::Merge::Lists::VERSION = '0.30';
 @Text::Merge::Lists::ISA = ('Text::Merge');
 
 1;
@@ -304,7 +304,7 @@ sub set_max_nesting_depth {
 };
 
 
-=item sort_list($methodstr, $listref)
+=item sort_method($methodstr, $listref)
 
 This method returns the sorted list by processing the C<$methodstr> for each item
 in the list.  A common C<$methodstr> might look something like:
@@ -313,19 +313,29 @@ in the list.  A common C<$methodstr> might look something like:
 
 Which would perform a reverse numeric sort on the list.  Basically a merge is
 performed on the $methodstr and the sort algorithm is sensitive to the keyword
-designators: C<reverse> and C<numeric>.
+designators: C<reverse> and C<numeric>, which must appear at the end of the 
+sort method string.
+
+These must be items, where the data is contained in the 'Data' field.  For
+instance:
+
+	$item = { 'ItemType' => 'someitem',
+		  'Data' => { 'field1' => 'val1',
+			      'field2' => 'val2' } };
 
 =cut
 sub sort_method {
 	my ($self, $method, $items) = @_;
 	my @sorted = ();
 	my ($field, $style);
-	if ($method =~ /numeric/) {
-		@sorted = sort { ($self->publish_text($method,$a->dataref,$a->action) || 0) <=> 
-		                 ($self->publish_text($method,$b->dataref,$b->action) || 0) } @$items;	
-	} elsif ($method) {
-		@sorted = sort { $self->publish_text($method,$a->dataref,$a->action) cmp 
-		                 $self->publish_text($method,$b->dataref,$b->action) } @$items;	
+	my $value = $method;
+	$value =~ s/\s(?:reverse|numeric)//g;
+	if ($value && $method =~ /numeric/) {
+		@sorted = sort { ($self->publish_text($value,$$a{'Data'},$$a{'Actions'}) || 0) <=> 
+		                 ($self->publish_text($value,$$b{'Data'},$$b{'Actions'}) || 0) } @$items;	
+	} elsif ($value) {
+		@sorted = sort { $self->publish_text($value,$$a{'Data'},$$a{'Actions'}) cmp 
+		                 $self->publish_text($value,$$b{'Data'},$$b{'Actions'}) } @$items;	
 	} else { @sorted = sort { $a->id cmp $b->id } @$items; };
 	if ($method =~ /reverse/) { @sorted = reverse(@sorted); };
 	return wantarray ? @sorted : \@sorted;
@@ -461,7 +471,7 @@ sub handle_table_templates {
 =head1 PREREQUISITES
 
 This module inherits and extends the C<Text::Merge> module by this author.
-This module was written and tested under perl 5.004 and runs with C<-Tw> set and C<use strict>. 
+This module was written and tested under perl 5.005 and runs with C<-Tw> set and C<use strict>. 
 
 =head1 AUTHOR
 

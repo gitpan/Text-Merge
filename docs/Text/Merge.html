@@ -1,6 +1,6 @@
 <HTML>
 <HEAD>
-<TITLE>Text::Merge - v.0.29  General purpose text/data merging methods in Perl.</TITLE>
+<TITLE>Text::Merge - v.0.31  General purpose text/data merging methods in Perl.</TITLE>
 <LINK REV="made" HREF="mailto:root@porky.devel.redhat.com">
 </HEAD>
 
@@ -31,8 +31,7 @@
 <HR>
 <P>
 <H1><A NAME="NAME">NAME</A></H1>
-<P>
-Text::Merge - v.0.29 General purpose text/data merging methods in Perl. 
+Text::Merge - v.0.31 General purpose text/data merging methods in Perl. 
 
 <P>
 <HR>
@@ -70,6 +69,10 @@ Text::Merge - v.0.29 General purpose text/data merging methods in Perl.
         $success = $merge-&gt;publish_email($mailer, $headers, $template, $item);
 </PRE>
 <P>
+<PRE>        $datahash = $merge-&gt;cgi2data();        # if you used &quot;CGI(:standard)&quot;
+        $datahash = $merge-&gt;cgi2data($cgi);    # if you just used CGI.pm
+</PRE>
+<P>
 <HR>
 <H1><A NAME="DESCRIPTION">DESCRIPTION</A></H1>
 <P>
@@ -105,10 +108,10 @@ by the Perl OO model clearly outweighed the constraints thereby imposed.
 That's my excuse...what's yours?
 
 <P>
-There are four public methods for the <CODE>Text::Merge</CODE> object: <A HREF="#item_publish">publish()</A>, <A HREF="#item_publish_to">publish_to()</A>, <A HREF="#item_publish_text">publish_text()</A>, 
-<A HREF="#item_publish_email">publish_email()</A>. The first, <A HREF="#item_publish">publish()</A>, sends output to the currently selected file handle (normally STDOUT). The
-second method, <A HREF="#item_publish_text">publish_text()</A>, returns the merged output as a text block. The last method, 
-<A HREF="#item_publish_email">publish_email()</A>, sends the merged output as a formatted e-mail message to the designated
+There are four public methods for the <CODE>Text::Merge</CODE> object: <CODE><A HREF="#item_publish">publish</A>()</CODE>, <CODE><A HREF="#item_publish_to">publish_to</A>()</CODE>, <CODE><A HREF="#item_publish_text">publish_text</A>()</CODE>, 
+<CODE><A HREF="#item_publish_email">publish_email</A>()</CODE>. The first, <CODE><A HREF="#item_publish">publish</A>()</CODE>, sends output to the currently selected file handle (normally STDOUT). The
+second method, <CODE><A HREF="#item_publish_text">publish_text</A>()</CODE>, returns the merged output as a text block. The last method, 
+<CODE><A HREF="#item_publish_email">publish_email</A>()</CODE>, sends the merged output as a formatted e-mail message to the designated
 mailer.
 
 <P>
@@ -148,9 +151,9 @@ colons. In addition, blocks of output can be contained within curly
 brackets in certain contexts for conditional display.
 
 <DL>
-<DT><STRONG><A NAME="item_REF">REF: tags</A></STRONG><DD>
 <P>
-Simple data substitution is achieved with the <A HREF="#item_REF_">REF:</A> tag. Here is an example of the use of a <A HREF="#item_REF_">REF:</A> tag in context, assume we have a key-value pair in our data HASH
+<DT><STRONG><A NAME="item_REF_">REF:</A> tags</STRONG><DD>
+Simple data substitution is achieved with the <CODE><A HREF="#item_REF_">REF:</A></CODE> tag. Here is an example of the use of a <CODE><A HREF="#item_REF_">REF:</A></CODE> tag in context, assume we have a key-value pair in our data HASH
 associating the key 'Animal' with the value of 'turtle':
 
 <P>
@@ -163,7 +166,7 @@ when filtered, becomes:
 <PRE>        The quick brown turtle jumped over the lazy dog.
 </PRE>
 <P>
-The <A HREF="#item_REF_">REF:</A> tag designators may also contain one or more format directives. These are
+The <CODE><A HREF="#item_REF_">REF:</A></CODE> tag designators may also contain one or more format directives. These are
 chained left to right, and act to convert the data before it is displayed.
 For example:
 
@@ -172,12 +175,12 @@ For example:
 </PRE>
 <P>
 would result in the first three letters of the SCALAR data value associated
-with Animal in lower case. See the section, <CODE>Data Conversions Formats</CODE>, for a list of the available SCALAR data formatting directives. Note that
+with Animal in lower case. See the section, <CODE><A HREF="#item_Data">Data</A> Conversions Formats</CODE>, for a list of the available SCALAR data formatting directives. Note that
 some conversions may be incompatible or contradictory. The system will not
 necessarily warn you of such cases, so be forewarned.
 
 <P>
-Any <A HREF="#item_REF_">REF:</A> tag designator can be surrounded by curly brace pairs containing text that
+Any <CODE><A HREF="#item_REF_">REF:</A></CODE> tag designator can be surrounded by curly brace pairs containing text that
 would be included in the merged response only if the result of the
 designator is not empty (has a length). There must be no spaces between the
 tag and the curly braced text. If line-by-line mode is turned off, then the
@@ -199,9 +202,9 @@ empty, or zero:
 <P>
 <PRE>        The lazy dog lies.
 </PRE>
-<DT><STRONG><A NAME="item_IF">IF: tags</A></STRONG><DD>
 <P>
-The <A HREF="#item_IF_">IF:</A> tag designators performs a conditional display. The syntax is as follows:
+<DT><STRONG><A NAME="item_IF_">IF:</A> tags</STRONG><DD>
+The <CODE><A HREF="#item_IF_">IF:</A></CODE> tag designators performs a conditional display. The syntax is as follows:
 
 <P>
 <PRE>        IF:FieldName:formats{Text to display}
@@ -210,35 +213,35 @@ The <A HREF="#item_IF_">IF:</A> tag designators performs a conditional display. 
 This designator would result in the string <STRONG>Text to display</STRONG> being returned if the formatted data value is not empty. The curly braced
 portion is required, and no curly braces are allowed before the designator.
 
-<DT><STRONG><A NAME="item_NEG">NEG: tags</A></STRONG><DD>
 <P>
-The <A HREF="#item_NEG_">NEG:</A> tag designator is similar to the <A HREF="#item_IF_">IF:</A> tag, but the bracketed text is processed only if the formatted data value
-is empty (zero length) or zero. Effectively the <A HREF="#item_NEG_">NEG:</A> can be thought of as <STRONG>if not</STRONG>. Here is an example:
+<DT><STRONG><A NAME="item_NEG_">NEG:</A> tags</STRONG><DD>
+The <CODE><A HREF="#item_NEG_">NEG:</A></CODE> tag designator is similar to the <CODE><A HREF="#item_IF_">IF:</A></CODE> tag, but the bracketed text is processed only if the formatted data value
+is empty (zero length) or zero. Effectively the <CODE><A HREF="#item_NEG_">NEG:</A></CODE> can be thought of as <STRONG>if not</STRONG>. Here is an example:
 
 <P>
 <PRE>        NEG:FieldName:formats{Text to display if the result is empty.}
 </PRE>
-<DT><STRONG><A NAME="item_ACT">ACT: tags</A></STRONG><DD>
 <P>
-The <A HREF="#item_ACT_">ACT:</A> tag designates that an action is to be performed (a subroutine call) to
+<DT><STRONG><A NAME="item_ACT_">ACT:</A> tags</STRONG><DD>
+The <CODE><A HREF="#item_ACT_">ACT:</A></CODE> tag designates that an action is to be performed (a subroutine call) to
 obtain the result for substition. The key name specified in the designator
 is used to look up the reference to the appropriate subroutine, and the
 data HASH reference is passed as the sole argument to that subroutine. The
 returned value is the value used for the substition.
 
 <P>
-<A HREF="#item_ACT_">ACT:</A> is intended to be used to insert programmatic components into the document.
-It can only specify action key names and has no equivalent tags to <A HREF="#item_IF_">IF:</A> and <A HREF="#item_NEG_">NEG:</A>. The curly brace rules for the <A HREF="#item_ACT_">ACT:</A>
-tag are exactly the same as those for the <A HREF="#item_REF_">REF:</A> tag.
+<CODE><A HREF="#item_ACT_">ACT:</A></CODE> is intended to be used to insert programmatic components into the document.
+It can only specify action key names and has no equivalent tags to <CODE><A HREF="#item_IF_">IF:</A></CODE> and <CODE><A HREF="#item_NEG_">NEG:</A></CODE>. The curly brace rules for the <CODE><A HREF="#item_ACT_">ACT:</A></CODE>
+tag are exactly the same as those for the <CODE><A HREF="#item_REF_">REF:</A></CODE> tag.
 
-<DT><STRONG><A NAME="item_Conditional">Conditional Text Braces</A></STRONG><DD>
 <P>
-All tags support conditional text surrounded by curly braces. If the <A HREF="#item_line_by_line">line_by_line()</A> switch is set, then the entire tag degignator must be on a single line of
+<DT><STRONG><A NAME="item_Conditional">Conditional</A> Text Braces</STRONG><DD>
+All tags support conditional text surrounded by curly braces. If the <CODE><A HREF="#item_line_by_line">line_by_line</A>()</CODE> switch is set, then the entire tag degignator must be on a single line of
 text, but if the switch is OFF (default) then the conditional text can span
 multiple lines.  
 
 <P>
-The two conditional tags, <A HREF="#item_IF_">IF:</A> and <A HREF="#item_NEG_">NEG:</A>, require a single conditional text block, surrounded by curly braces,
+The two conditional tags, <CODE><A HREF="#item_IF_">IF:</A></CODE> and <CODE><A HREF="#item_NEG_">NEG:</A></CODE>, require a single conditional text block, surrounded by curly braces,
 immediately following (suffixing) the field name or format string. For
 example:
 
@@ -246,14 +249,14 @@ example:
 <PRE>        IF:SomeField{this text will print}
 </PRE>
 <P>
-The <A HREF="#item_REF_">REF:</A> and <A HREF="#item_ACT_">ACT:</A> tags allow for curly braces both at the beginning (prefixing) and at the
+The <CODE><A HREF="#item_REF_">REF:</A></CODE> and <CODE><A HREF="#item_ACT_">ACT:</A></CODE> tags allow for curly braces both at the beginning (prefixing) and at the
 end (suffixing). For example:
 
 <P>
 <PRE>        {Some optional text }REF:SomeValue{ more text.}
 </PRE>
-<DT><STRONG><A NAME="item_Command">Command Braces</A></STRONG><DD>
 <P>
+<DT><STRONG><A NAME="item_Command">Command</A> Braces</STRONG><DD>
 You may bracket entire constructs (along with any conditional text) with
 double square brackets to set them off from the rest of the document. The
 square brackets would be removed during substitution:
@@ -270,8 +273,8 @@ would result in one of:
 or
         The fox jumped over the lazy dog.
 </PRE>
-<DT><STRONG><A NAME="item_Data">Data Conversion Formats</A></STRONG><DD>
 <P>
+<DT><STRONG><A NAME="item_Data">Data</A> Conversion Formats</STRONG><DD>
 Here is a list of the data conversion format and the a summary. Details are
 undetermined in some cases for exceptions, but all of the conversion to
 some satisfactory degree. These conversion methods will treat all values as
@@ -288,6 +291,7 @@ SCALAR values:
         int     -  converts the value to an integer
         float   -  converts the value to a floating point value
         string  -  converts the numeric value to a string (does nothing)
+        detab   -  replaces tabs with spaces, aligned to 8-char columns
         html    -  replaces newlines with HTML B&lt;BR&gt; tags
         dollars -  converts the value to 2 decimal places
         percent -  converts the value to a percentage
@@ -306,7 +310,7 @@ SCALAR values:
         urldecode - performs a url decoding (reverse of urlencode)
 </PRE>
 <P>
-Most of the values are self explanitory, however a few may need
+Most of the values are self-explanatory, however a few may need
 explanation: The <CODE>trunc</CODE> format must be suffixed with an integer digit to define at most how many
 characters should be displayed, as in <CODE>trunc14</CODE>.
 
@@ -318,7 +322,7 @@ This allows text to be displayed appropriately in some cases.
 The <CODE>escape</CODE> format performs an HTML escape on all of the reserved characters of the
 string. This allows values to be displayed correctly on browsers in most
 cases. If your data is not prefiltered, it is usually a good idea to use <STRONG>escape</STRONG> on strings where HTML formatting is prohibited. For example a '$' value
-would be converted to '&amp;#36;'.
+would be converted to '&#36;'.
 
 <P>
 The <CODE>unescape</CODE> format does the reverse of an <CODE>escape</CODE> format, however it does not operate on HTML mnemonic escapes, allowing
@@ -352,7 +356,7 @@ previous example might look like this:
 </PRE>
 <P>
 In addition, if you specify a key 'ItemType' in your <CODE>$item</CODE> and give it a value, then the item reference will be handed to any methods
-invoked by the <A HREF="#item_ACT_">ACT:</A> tags, rather than just the data hash. This allows you to construct <STRONG>items</STRONG> that can be merged with templates. For example, the following code is
+invoked by the <CODE><A HREF="#item_ACT_">ACT:</A></CODE> tags, rather than just the data hash. This allows you to construct <STRONG>items</STRONG> that can be merged with templates. For example, the following code is
 valid:
 
 <P>
@@ -373,10 +377,10 @@ By default, the publishing methods slurp in the entire template and process
 it as a text block. This allows for multi-line conditional text blocks.
 However, in some cases the resulting output may be very large, or you may
 want the output to be generated line by line for some other reason (such as
-unbuffered output). This is accomplished through the <A HREF="#item_line_by_line">line_by_line()</A> method, which accepts an optional boolean value, which sets the current
+unbuffered output). This is accomplished through the <CODE><A HREF="#item_line_by_line">line_by_line</A>()</CODE> method, which accepts an optional boolean value, which sets the current
 setting if specified or returns the current settingif not. Note that this
-has the most notable impact on the <A HREF="#item_publish">publish()</A> and <A HREF="#item_publish_email">publish_email()</A> methods, since the results of the merge operations are sent to a handle. If
-the line by line switch is set, then the <A HREF="#item_publish_text">publish_text()</A> method will substitute line by line, but will still return the entire
+has the most notable impact on the <CODE><A HREF="#item_publish">publish</A>()</CODE> and <CODE><A HREF="#item_publish_email">publish_email</A>()</CODE> methods, since the results of the merge operations are sent to a handle. If
+the line by line switch is set, then the <CODE><A HREF="#item_publish_text">publish_text</A>()</CODE> method will substitute line by line, but will still return the entire
 merged document as a single text block (not line by line). 
 
 <P>
@@ -391,20 +395,20 @@ designators as described previously. The template arguments passed to the
 publishing functions can take one of three forms:
 
 <DL>
-<DT><STRONG><A NAME="item_File">File Handle</A></STRONG><DD>
 <P>
+<DT><STRONG><A NAME="item_File">File</A> Handle</STRONG><DD>
 This is a FileHandle object not a glob. You must use the <CODE>FileHandle</CODE> package that comes with the Perl distribution for this type of template
 argument. Processing begins at the current file position and continues
 until the end of file condition is reached.
 
-<DT><STRONG>File Path</STRONG><DD>
 <P>
+<DT><STRONG>File Path</STRONG><DD>
 If the argument is a scalar string with no whitespace, it is assumed to be
 a file path. The template at that location will be used when merging the
 document.
 
-<DT><STRONG><A NAME="item_Text">Text Block</A></STRONG><DD>
 <P>
+<DT><STRONG><A NAME="item_Text">Text</A> Block</STRONG><DD>
 If the argument is a scalar string that contains whitespace, it is assumed
 to be the actual text template. Substitution will be performed on a locally
 scoped copy of this argument.  
@@ -419,8 +423,8 @@ you should use a FileHandle or file path argument.
 <HR>
 <H2><A NAME="Methods">Methods</A></H2>
 <DL>
-<DT><STRONG><A NAME="item_new">new()</A></STRONG><DD>
 <P>
+<DT><STRONG><A NAME="item_new">new</A>()</STRONG><DD>
 This method gives us a blessed hash reference, with the following attribute
 keys:
 
@@ -430,40 +434,40 @@ keys:
 <P>
 Other keys can be added by objects which inherit <CODE>Text::Merge</CODE>.
 
-<DT><STRONG><A NAME="item_line_by_line">line_by_line($setting)</A></STRONG><DD>
 <P>
+<DT><STRONG><A NAME="item_line_by_line">line_by_line</A>($setting)</STRONG><DD>
 This method returns the current setting if the <CODE>$setting</CODE> argument is omitted. Otherwise it resets the line-by-line mode to the
 setting requested. A non-zero value tells the publishing methods to process
 the template line by line. For those methods that output results to a
 handle, then those results will also be echoed line by line.
 
-<DT><STRONG><A NAME="item_set_delimiters">set_delimiters($start, $end)</A></STRONG><DD>
 <P>
+<DT><STRONG><A NAME="item_set_delimiters">set_delimiters</A>($start, $end)</STRONG><DD>
 This method assigns a new command delimiter set for the tags. The 'colon'
 character is not allowed within the delimiter, and the delimiter may not be
 a single curly bracket. Both delimiters must be provided, and they cannot
 be identical.
 
-<DT><STRONG><A NAME="item_publish">publish($template, $dataref, $actionref)</A></STRONG><DD>
 <P>
+<DT><STRONG><A NAME="item_publish">publish</A>($template, $dataref, $actionref)</STRONG><DD>
 This is the normal publishing method. It merges the specified template with
 the data and any provided actions. The output is sent to the currently
 selected handle, normally STDOUT.
 
-<DT><STRONG><A NAME="item_publish_to">publish_to($handle, $template, $dataref, $actionref)</A></STRONG><DD>
 <P>
+<DT><STRONG><A NAME="item_publish_to">publish_to</A>($handle, $template, $dataref, $actionref)</STRONG><DD>
 This is similar to the normal publishing method. It merges the specified
 template with the data and any provided actions. The output is sent to the
 specified <CODE>$handle</CODE> or to the currently selected handle, normally STDOUT, if the <CODE>$handle</CODE> argument is omitted.
 
-<DT><STRONG><A NAME="item_publish_text">publish_text($template, $dataref, $actionref)</A></STRONG><DD>
 <P>
-This method works similar to the <A HREF="#item_publish_to">publish_to()</A> method, except it returns the filtered output as text rather than sending
+<DT><STRONG><A NAME="item_publish_text">publish_text</A>($template, $dataref, $actionref)</STRONG><DD>
+This method works similar to the <CODE><A HREF="#item_publish_to">publish_to</A>()</CODE> method, except it returns the filtered output as text rather than sending
 it to the currently selected filehandle.
 
-<DT><STRONG><A NAME="item_publish_email">publish_email($mailer, $headers, $filepath, $data, $actions)</A></STRONG><DD>
 <P>
-This method is similar to <A HREF="#item_publish">publish()</A> but opens a handle to <CODE>$mailer</CODE>, and sending the merged data formatted as an e-mail message.  <CODE>$mailer</CODE> may contain the sequences <CODE>RECIPIENT</CODE> and/or <CODE>SUBJECT</CODE>. If either does not exists, it will be echoed at the beginning of the
+<DT><STRONG><A NAME="item_publish_email">publish_email</A>($mailer, $headers, $filepath, $data, $actions)</STRONG><DD>
+This method is similar to <CODE><A HREF="#item_publish">publish</A>()</CODE> but opens a handle to <CODE>$mailer</CODE>, and sending the merged data formatted as an e-mail message.  <CODE>$mailer</CODE> may contain the sequences <CODE>RECIPIENT</CODE> and/or <CODE>SUBJECT</CODE>. If either does not exists, it will be echoed at the beginning of the
 email (in the form of a header), allowing e-mail to be passed preformatted.
 This is the preferred method; use a mailer that can be told to accept the
 ``To:'', ``Subject:'' and ``Reply-To:'' fields within the body of the
@@ -496,12 +500,18 @@ vertical pipe):
 Be careful not to run this with write permission on the sendmail file and
 forget the process pipe!!!
 
+<P>
+<DT><STRONG><A NAME="item_cgi2data">cgi2data</A>($cgi)</STRONG><DD>
+This method converts <CODE>CGI.pm</CODE> parameters to a data hash reference suitable for merging. The <CODE>$cgi</CODE> parameter is a CGI object and is optional, but you must have imported the <CODE>:standard</CODE> methods from <CODE>CGI.pm</CODE> if you omit the <CODE>$cgi</CODE> paramter. This method returns a hash reference containing the parameters as
+data. Basically it turns list values into list references and puts
+everything in a hash keyed by field name.
+
 </DL>
 <P>
 <HR>
 <H1><A NAME="PREREQUISITES">PREREQUISITES</A></H1>
 <P>
-This module was written and tested entirely in Perl 5.004 and runs with <CODE>-Tw</CODE> set and <CODE>use strict</CODE>. It requires use of the package <CODE>FileHandle</CODE> which is part of the standard perl distribution.
+This module was written and tested in Perl 5.005 and runs with <CODE>-Tw</CODE> set and <CODE>use strict</CODE>. It requires use of the package <CODE>FileHandle</CODE> which is part of the standard perl distribution.
 
 <P>
 <HR>
@@ -509,7 +519,7 @@ This module was written and tested entirely in Perl 5.004 and runs with <CODE>-T
 <P>
 This software is released under the Perl Artistic License. Derive what you
 wish, as you wish, but please attribute releases and include derived source
-code. (C) 1997, 1998 by Steven D. Harris, <A
+code. (C) 1997-2000 by Steven D. Harris, <A
 HREF="mailto:perl@nullspace.com">perl@nullspace.com</A>
 
 </BODY>

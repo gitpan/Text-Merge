@@ -2,8 +2,9 @@
 use Time::Local;
 
 $::data = { 'Test1' => 'works',
-	  'TestFloat' => '1.3312',
+	  'TestFloat' => 1.3312,
 	  'TestName' => 'JOHN Q. SMITH',
+	  'TestTabular' => "\tOne\tTwo\t\tBuckle My Shoe.\t",
 	  'TestEscape' => '&;"#<>',
 	  'TestCase' => 'bOoK',
 	  'TestDate' => Time::Local::timelocal(0,0,21,9,6,98,4,189,1),

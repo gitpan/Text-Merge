@@ -5,22 +5,27 @@ use Text::Merge::Lists;
 
 $|=1;
 
+
 require "t/test.pl";	# $data is in here
-$data = $data;
+$::data = $::data;
 $actions = { 'Mothers' => \&apple_pie };
 
 my $publisher = new Text::Merge::Lists('t/');
 
 ($ct,$passed) = (0,0);
 
-print "1..73\n";
+print "1..80\n";
 
 while (!eof(DATA) && ($_=<DATA>)) {
 	$ct++;
 	$line = $publisher->text_process($_, {'Data'=>$data, 'Actions'=>$actions});
 	$nextline = <DATA>;
-	if ($line eq $nextline) { $passed++; print "ok\n";  }
-	else { print "not ok\n"; };
+	if ($line eq $nextline) { $passed++; print "ok\n"; }
+	else { 
+		print "not ok\n";  
+		chomp $line;  chomp $nextline;
+		print STDERR "'$line' ne '$nextline'\n"; 
+	};
 };
 
 exit ($passed ne $ct);
@@ -168,6 +173,12 @@ REF:TestCase:lower
 book
 REF:TestName:lower:proper
 John Q. Smith
+REF:TestName:words2:upper
+JOHN Q.
+REF:TestName:words1:upper
+JOHN
+REF:TestName:words3:upper
+JOHN Q. SMITH
 REF:TestFloat:int
 1
 REF:TestFloat:percent
@@ -176,7 +187,15 @@ REF:TestFloat:int:percent
 100%
 $REF:TestFloat:dollars
 $1.33
+My ratio is REF:TestFloat:string.
+My ratio is 1.3312.
+REF:TestTabular:detab
+        One     Two             Buckle My Shoe. 
 REF:TestEscape:escape
 &#38;;&#34;&#35;&#60;&#62;
 REF:TestEscape:escape:unescape
+&;"#<>
+REF:TestEscape:urlencode
+%26%3B%22%23%3C%3E
+REF:TestEscape:urlencode:urldecode
 &;"#<>

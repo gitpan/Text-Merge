@@ -1,6 +1,6 @@
 <HTML>
 <HEAD>
-<TITLE>Text::Merge::Lists - v.0.29 Text/data merge with lists/table support</TITLE>
+<TITLE>Text::Merge::Lists - v.0.30 Text/data merge with lists/table support</TITLE>
 <LINK REV="made" HREF="mailto:root@porky.devel.redhat.com">
 </HEAD>
 
@@ -31,8 +31,7 @@
 <HR>
 <P>
 <H1><A NAME="NAME">NAME</A></H1>
-<P>
-Text::Merge::Lists - v.0.29 Text/data merge with lists/table support
+Text::Merge::Lists - v.0.30 Text/data merge with lists/table support
 
 <P>
 <HR>
@@ -58,7 +57,7 @@ to the directory containing your various arbitrary lists style directories,
 described later. See the <CODE>Text::Merge</CODE> object for a description of the publishing methods available to you.
 
 <P>
-Lists can be nested, and you can use the <A HREF="#item_set_max_nesting_depth">set_max_nesting_depth()</A> object method to override the default maximum nesting depth of 3. That is
+Lists can be nested, and you can use the <CODE><A HREF="#item_set_max_nesting_depth">set_max_nesting_depth</A>()</CODE> object method to override the default maximum nesting depth of 3. That is
 to say, you can only have a list of a list of a list by default. If you
 want to nest further you will need to adjust this value. The depth limit
 here is to prevent you from clobbering the perl stack (and possibly other
@@ -136,21 +135,21 @@ Each list style has various special features that you can use by providing
 certain files in the list style directory. These include a <CODE>header</CODE>, a <CODE>footer</CODE>, a <CODE>default</CODE> item, and a message to display if the list is <CODE>empty</CODE>.
 
 <DL>
-<DT><STRONG><A NAME="item_List">List Header</A></STRONG><DD>
 <P>
+<DT><STRONG><A NAME="item_List">List</A> Header</STRONG><DD>
 The list header is an HTML fragment contained in a plain text file that is
 treated by the filter as if it were part of the original document (as
 opposed to a list item), it is displayed immediately before the list
 itself. It is contained in the file <CODE>header.txt</CODE> in the list style directory. This file is optional.
 
-<DT><STRONG>List Footer</STRONG><DD>
 <P>
+<DT><STRONG>List Footer</STRONG><DD>
 The list footer is similar to the list header described above. It is
 displayed immediately following the list itself. It is contained in the
 file <CODE>footer.txt</CODE> in the list style directory. This file is also optional.
 
-<DT><STRONG><A NAME="item_Default">Default Item Type</A></STRONG><DD>
 <P>
+<DT><STRONG><A NAME="item_Default">Default</A> Item Type</STRONG><DD>
 You may provide a listing fragment that will be used for any item that does
 not have a template in the designated list style directory. This could be
 an error message, or it my display information universal to all of your
@@ -161,8 +160,8 @@ style.
 <P>
 The default item template is located in a file called <CODE>default.txt</CODE> in the designated list style directory. This file is optional.
 
-<DT><STRONG><A NAME="item_Empty">Empty List Message</A></STRONG><DD>
 <P>
+<DT><STRONG><A NAME="item_Empty">Empty</A> List Message</STRONG><DD>
 Similar to a header or footer, the empty list message is a file contained
 in the designate style directory that is treated as part of the parent
 document for display purposes, if no items exist in your list. If this file
@@ -227,8 +226,8 @@ addition the <CODE>header</CODE> and <CODE>footer</CODE> templates will also hav
 the <CODE>filler</CODE> template will have the FillerColumns field set, and that must be used to
 set the COLSPAN of the last table cell as described later.
 
-<DT><STRONG><A NAME="item_Table">Table Header Template</A></STRONG><DD>
 <P>
+<DT><STRONG><A NAME="item_Table">Table</A> Header Template</STRONG><DD>
 The table header is contained in a file named <CODE>header.txt</CODE> in the table style directory. This file <STRONG>must contain</STRONG>
 the &lt;TABLE ...&gt; element defintion. It may also contain full table rows to
 start off the table. Because table styles may be invoked with a variable
@@ -246,8 +245,8 @@ Notice the <CODE>REF:TableColumns</CODE> portion of the code, which will be repl
 the table when the table is created. This allows for a ``variable width''
 header that covers all columns.
 
-<DT><STRONG>Table Footer Template</STRONG><DD>
 <P>
+<DT><STRONG>Table Footer Template</STRONG><DD>
 The table footer is contained in a file named <CODE>footer.txt</CODE> and is very similar to the <CODE>header.txt</CODE> file described above. The <CODE>footer.txt</CODE> file <STRONG>must contain</STRONG> the &lt;/TABLE&gt; element closing out the table. Before that element, any number
 of optional footer rows can be listed, and they too can use the <CODE>TableColumns</CODE> field to span the table columns as well. For example:
 
@@ -261,8 +260,8 @@ rows. Also notice the &lt;/TABLE&gt; listed at the very end. This basically
 closes out the table and is required. You can also include other HTML after
 this element if you wish, but it will not be included in the table itself.
 
-<DT><STRONG>Table Filler Template</STRONG><DD>
 <P>
+<DT><STRONG>Table Filler Template</STRONG><DD>
 The table filler cell is contained in a file named <CODE>filler.txt</CODE> in the table style directory. This is the template used for the last cell
 of a table to fill the empty spaces that may be left if the number of items
 in the list is not evenly divisible by the number of columns in the table.
@@ -278,24 +277,24 @@ The filler cell will be created with a single non-blocking space character
 (<EM>&nbsp;</EM>) as content if no 
 <CODE>filler.txt</CODE> template file exists. 
 
-<DT><STRONG><A NAME="item_Item">Item Type Cell Template</A></STRONG><DD>
 <P>
+<DT><STRONG><A NAME="item_Item">Item</A> Type Cell Template</STRONG><DD>
 Each item in the list can be displayed based on its <CODE>ItemType</CODE> attribute if a cell template exists in the table style directory that is
 named with the item type followed by the '.txt' suffix. If such a template
 exists, it will be used to display the cell using the item data and
 actions. Every cell template <STRONG>must contain</STRONG> the &lt;TD...&gt;...&lt;/TD&gt; elements to work properly in the table
 style.
 
-<DT><STRONG>Default Cell Template</STRONG><DD>
 <P>
+<DT><STRONG>Default Cell Template</STRONG><DD>
 The default cell template will be used if there is no cell template for the
 item type to be displayed. That is to say, if no file as described above
 exists for the item type in question, a file called 'default.txt' will be
 used to display the item. The 'default.txt' file is required if your table
 style definition is be robust.
 
-<DT><STRONG>Empty Table Template</STRONG><DD>
 <P>
+<DT><STRONG>Empty Table Template</STRONG><DD>
 The empty table template is used if the list exists but contains no items.
 The empty table template is contained in a file in the table style
 directory named 'empty.txt'. This template will have access to all the data
@@ -306,25 +305,25 @@ and the results of processing 'empty.txt' will be the only thing displayed.
 <H2><A NAME="Methods">Methods</A></H2>
 <P>
 These are the methods that extend the basic functions of the <CODE>Text::Merge</CODE> object. Note that we overload 
-<A HREF="#item_convert_value">convert_value()</A> in order to insert our list style format recognition and interpretation.
+<CODE><A HREF="#item_convert_value">convert_value</A>()</CODE> in order to insert our list style format recognition and interpretation.
 This is very elegant and easy to do.
 
-<DT><STRONG><A NAME="item_new">new($liststyles)</A></STRONG><DD>
 <P>
+<DT><STRONG><A NAME="item_new">new</A>($liststyles)</STRONG><DD>
 This method constructs a <CODE>Text::Merge::Lists</CODE> object. It basically grabs a new <CODE>Text::Merge</CODE> object and then assigns the liststyles directory (which is required). If
 the template path is omitted, an the call is treated as a normal <CODE>Text::Merge</CODE> object request.
 
-<DT><STRONG><A NAME="item_convert_value">convert_value($dataref, $name, $style, $item)</A></STRONG><DD>
 <P>
+<DT><STRONG><A NAME="item_convert_value">convert_value</A>($dataref, $name, $style, $item)</STRONG><DD>
 This method catches list styles and handles them, otherwise the <CODE>Text::Merge</CODE> method is used.
 
-<DT><STRONG><A NAME="item_set_max_nesting_depth">set_max_nesting_depth($intval)</A></STRONG><DD>
 <P>
+<DT><STRONG><A NAME="item_set_max_nesting_depth">set_max_nesting_depth</A>($intval)</STRONG><DD>
 This method assigns the maximum nesting depth for lists. The default
 maximum depth is 3.
 
-<DT><STRONG><A NAME="item_sort_list">sort_list($methodstr, $listref)</A></STRONG><DD>
 <P>
+<DT><STRONG><A NAME="item_sort_method">sort_method</A>($methodstr, $listref)</STRONG><DD>
 This method returns the sorted list by processing the <CODE>$methodstr</CODE> for each item in the list. A common <CODE>$methodstr</CODE> might look something like:
 
 <P>
@@ -333,14 +332,23 @@ This method returns the sorted list by processing the <CODE>$methodstr</CODE> fo
 <P>
 Which would perform a reverse numeric sort on the list. Basically a merge
 is performed on the <CODE>$methodstr</CODE> and the sort algorithm is
-sensitive to the keyword designators: <CODE>reverse</CODE> and <CODE>numeric</CODE>.
+sensitive to the keyword designators: <CODE>reverse</CODE> and <CODE>numeric</CODE>, which must appear at the end of the sort method string.
 
+<P>
+These must be items, where the data is contained in the 'Data' field. For
+instance:
+
+<P>
+<PRE>        $item = { 'ItemType' =&gt; 'someitem',
+                  'Data' =&gt; { 'field1' =&gt; 'val1',
+                              'field2' =&gt; 'val2' } };
+</PRE>
 </DL>
 <P>
 <HR>
 <H1><A NAME="PREREQUISITES">PREREQUISITES</A></H1>
 <P>
-This module inherits and extends the <CODE>Text::Merge</CODE> module by this author. This module was written and tested under perl 5.004
+This module inherits and extends the <CODE>Text::Merge</CODE> module by this author. This module was written and tested under perl 5.005
 and runs with <CODE>-Tw</CODE> set and <CODE>use strict</CODE>. 
 
 <P>

@@ -1,4 +1,30 @@
 
+=======================================================================
+0.30 -> 0.31	 5/9/2000 -sdh
+-----------------------------------------------------------------------
+Added cgi2data() method for converting CGI.pm parameters to data.  This
+has to be called as Text::Merge::cgi2data($cgi) or without the $cgi
+parameter if you have imported the :standard methods from CGI.pm.
+
+Added de_tab() method and the 'detab' format to convert tab characters 
+to spaces in strings.
+
+Added tests for detab filter.
+
+Improved list testing.
+=======================================================================
+
+
+=======================================================================
+0.29 -> 0.30	 3/7/2000 -sdh
+-----------------------------------------------------------------------
+Fixed numerous warnings and bugs in the Text::Merge::Lists function
+sort_method().
+
+Fixed numerous warnings in type conversion where values are funny
+(numeric vs. string, undefined versus empty).
+=======================================================================
+
 
 =======================================================================
 0.28 -> 0.29     11/22/99 -sdh
