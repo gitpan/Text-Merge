@@ -326,19 +326,20 @@ instance:
 =cut
 sub sort_method {
 	my ($self, $method, $items) = @_;
-	my @sorted = ();
+	my $sorted = [];
 	my ($field, $style);
 	my $value = $method;
+	return (wantarray ? @$sorted : $sorted) if !$items || !ref $items;
 	$value =~ s/\s(?:reverse|numeric)//g;
 	if ($value && $method =~ /numeric/) {
-		@sorted = sort { ($self->publish_text($value,$$a{'Data'},$$a{'Actions'}) || 0) <=> 
+		@$sorted = sort { ($self->publish_text($value,$$a{'Data'},$$a{'Actions'}) || 0) <=> 
 		                 ($self->publish_text($value,$$b{'Data'},$$b{'Actions'}) || 0) } @$items;	
 	} elsif ($value) {
-		@sorted = sort { $self->publish_text($value,$$a{'Data'},$$a{'Actions'}) cmp 
+		@$sorted = sort { $self->publish_text($value,$$a{'Data'},$$a{'Actions'}) cmp 
 		                 $self->publish_text($value,$$b{'Data'},$$b{'Actions'}) } @$items;	
-	} else { @sorted = sort { $a->id cmp $b->id } @$items; };
-	if ($method =~ /reverse/) { @sorted = reverse(@sorted); };
-	return wantarray ? @sorted : \@sorted;
+	} else { @$sorted = sort { $a->id cmp $b->id } @$items; };
+	if ($method =~ /reverse/) { @$sorted = reverse(@$sorted); };
+	return (wantarray ? @$sorted : $sorted);
 };
 
 

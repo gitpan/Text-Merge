@@ -2,7 +2,7 @@
 use strict;
 
 #
-# Text::Merge.pm - v.0.31 BETA
+# Text::Merge.pm - v.0.33 BETA
 #
 # (C)1997-2000 by Steven D. Harris. 
 # 
@@ -11,7 +11,7 @@ use strict;
 
 =head1 NAME
 
-Text::Merge - v.0.31  General purpose text/data merging methods in Perl. 
+Text::Merge - v.0.33  General purpose text/data merging methods in Perl. 
 
 =head1 SYNOPSIS
 
@@ -21,7 +21,7 @@ Text::Merge - v.0.31  General purpose text/data merging methods in Perl.
 	$merge->line_by_line(0);	# turn off
 	$merge->line_by_line(1);	# turn on
 
-	$merge->set_delimiters('<<', '>>');  # user defined delims
+	$merge->set_delimiters('<<', '>>');            # user defined delims
 
 	$success = $merge->publish($template, \%data);
 	$success = $merge->publish($template, \%data, \%actions);
@@ -83,7 +83,7 @@ referenced in a hash, keyed by the action name used in the template.
 Here is a good example of a publishing call in Perl:
 
 	$obj = new Text::Merge;
-	%data = ( 'Name'=>'John Smith', 'Age'=>31, 'Sex'=>'not enough' );
+	%data = ( 'Name'=>'John Smith', 'Age'=>33, 'Sex'=>'not enough' );
 	%actions = ( 'Mock' => \&mock_person,  'Laud' => \&laud_person );
 	$obj->publish($template, \%data, \%actions);
 
@@ -272,7 +272,7 @@ the data HASH reference, and the key 'Actions' associated with the action HASH r
 a previous example might look like this:
 
 	$obj = new Text::Merge;
-	$data = { 'Name'=>'John Smith', 'Age'=>31, 'Sex'=>'not enough' };
+	$data = { 'Name'=>'John Smith', 'Age'=>33, 'Sex'=>'not enough' };
 	$actions = { 'Mock' => \&mock_person,  'Laud' => \&laud_person };
 	$item = { 'Data' => $data,  'Actions' => $actions };
 	$obj->publish($template, $item);
@@ -343,7 +343,7 @@ package Text::Merge;
 use FileHandle;
 use AutoLoader 'AUTOLOAD';
 
-$Text::Merge::VERSION = '0.31';
+$Text::Merge::VERSION = '0.33';
 
 @Text::Merge::mon = qw(Jan. Feb. Mar. Apr. May June July Aug. Sep. Oct. Nov. Dec.);
 @Text::Merge::month = qw(January February March April May June July August September October November December);
@@ -389,25 +389,28 @@ sub line_by_line {
 
 =item set_delimiters($start, $end)
 
-This method assigns a new command delimiter set for the tags.  The 'colon' character is not allowed
-within the delimiter, and the delimiter may not be a single curly bracket.  Both delimiters must 
-be provided, and they cannot be identical.
+This method assigns a new command delimiter set for the tags (double 
+square brackets by default).  The 'colon' character is not allowed within 
+the delimiter, and the delimiter may not be a single curly bracket.  Both 
+the C<$start> and C<$end> delimiters must be provided, and they cannot be 
+identical.  
 
 =cut
 sub set_delimiters {
 	my ($self, $start, $end) = @_;
-	if (!$start || !$end) {
-		warn "Invalid delimiters provided to Text::Merge::set_delimiter().\n";
+	if (!defined $start || !defined $end ||
+		($start && !$end) || (!$start && $end)) {
+		warn "invalid delimiters provided to Text::Merge::set_delimiters().\n";
 		return 0;
 	};
 	if ($start =~ /\:/ || $end =~ /\:/) {
 		warn "The 'colon' character (:) is not allowed in Text::Merge delimiters.\n";
-	}
+	};
 	if ($start =~ /^[\{\}]$/ || $end =~ /^[\{\}]$/) {
-		warn "Neither Text::Merge delimiter can be a curly bracket ({) or (}).\n";
+		warn "Neither primary Text::Merge delimiter can be a curly bracket ({) or (}) in Text::Merge::set_delimiters().\n";
 	}
-	if (!($start cmp $end)) {
-		warn "The start and end Text::Merge delmiters must differ.\n";
+	if ($start && !($start cmp $end)) {
+		warn "The start and end Text::Merge delmiters must differ in set_delimiters().\n";
 	};
 	$$self{_Text_Merge_Delimiter1} = quotemeta($start);
 	$$self{_Text_Merge_Delimiter2} = quotemeta($end);
@@ -426,18 +429,15 @@ sub text_process {
 	my $ret = $text;
 	my ($open, $close) = 
 		($$self{_Text_Merge_Delimiter1},$$self{_Text_Merge_Delimiter2});
+	defined $open || ($open = '\[\[');
+	defined $close || ($close = '\]\]');
 	if (!$item) { warn "Improper call to text_process() in $0.  no item.\n";  return $ret; };
 	if (!$ret) { warn "Improper call to text_process() in $0.  no text.\n";  return $ret; };
-	# Why won't oeg work here?  It has something to do with the interpolated delimiters
-	# $ret && $ret =~ s/$open({(?:[^\{\}]*)\}(?:REF\:|ACT\:)|IF\:|NEG\:)(\w+(?:\:\w+)*)?\{((?:[^\}]|\}(?!$close))*)\}$close/$self->
-	# 									handle_cond($1,$2,$3,$item)/oeg;
 	$ret && $ret =~ s/$open({(?:[^\{\}]*)\}(?:REF\:|ACT\:)|IF\:|NEG\:)(\w+(?:\:\w+)*)?\{((?:[^\}]|\}(?!$close))*)\}$close/$self->
-	 									handle_cond($1,$2,$3,$item)/eg;
+	 									handle_cond($1,$2,$3,$item)/eg if $open && $close;
 	$ret && $ret =~ s/({(?:[^\{\}]*)\}(?:REF\:|ACT\:)|IF\:|NEG\:)(\w+(?:\:\w+)*)?\{([^\{\}]*)\}/$self->
 	 									handle_cond($1,$2,$3,$item)/oeg;
-	# Why won't oeg work here?  It has something to do with the interpolated delimiters
-	# $ret && $ret =~ s/$open(REF|ACT)\:(\w+)((?:\:\w+)*)$close/$self->handle_tag($item,$1,$2,($3 || ''))/oeg;
-	$ret && $ret =~ s/$open(REF|ACT)\:(\w+)((?:\:\w+)*)$close/$self->handle_tag($item,$1,$2,($3 || ''))/eg;
+	$ret && $ret =~ s/$open(REF|ACT)\:(\w+)((?:\:\w+)*)$close/$self->handle_tag($item,$1,$2,($3 || ''))/eg if $open && $close;
 	$ret && $ret =~ s/\b(REF|ACT)\:(\w+)((?:\:\w+)*)\b/$self->handle_tag($item,$1,$2,($3 || ''))/oeg;
 	return $ret;
 };
