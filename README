@@ -1,8 +1,8 @@
 -----------------------------------------------------------------------------
 
 Text::Merge
-Version 0.34
-last revised: March 12th, 2001
+Version 0.35
+last revised: March 1st, 2004
  
 Copyright (c) 1997-2001 by Steven D. Harris. All rights reserved.  This 
 program is free software; you can redistribute it and/or modify it under 
@@ -70,27 +70,11 @@ The modules can now be built and installed using this sequence of commands:
 
 -----------------------------------------------------------------------------
 
-SPECIAL DEVELOPMENT NOTE
-========================
-
-This module is now considered sufficiently stable to move beyond the 
-prototype stage.  Significant effort is now being put into moving to
-a parsed (and cached) template model designed for higher efficiency 
-and multiple template publishing.  Analysis shows potential improvements
-in speed directly proportional to the amount of data processed in some 
-cases.  We will ideally be moving from the REGEX processing now in use 
-to a parsed template model supported nested constructs, evaluated from
-the inside out.
-
-All releases under the above model will bear version 1.x.  This will 
-still allow maintenance releases to the current BETA version.
-
------------------------------------------------------------------------------
-
 If you would like to assist in development of this module or wish to contact
-the author, the e-mail is <perl@nullspace.com>.
+the author, <perl-wiz (is AT the domain) nullspace.org>.
 
 -----------------------------------------------------------------------------
 
 --SDH
+
 

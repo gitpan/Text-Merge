@@ -124,6 +124,7 @@ treated as part of the parent document for display purposes, if no items exist i
 provided, then empty lists are constructed as empty strings.  The file name for the empty list message is 
 C<empty.txt> in the designated list style directory and is optional.
 
+=back
 
 =head2 Table Style Syntax
 
@@ -174,6 +175,8 @@ and the optional template to use if the list is C<empty>.  The C<header>, C<foot
 will all have access to the data of the calling template, in addition the C<header> and C<footer> templates
 will also have the additional field TableColumns set.  Likewise, the C<filler> template will have the FillerColumns
 field set, and that must be used to set the COLSPAN of the last table cell as described later.
+
+=over 4
 
 =item Table Header Template
 
@@ -242,12 +245,15 @@ in a file in the table style directory named 'empty.txt'.  This template will ha
 of the calling template.  Note that if the 'empty.txt' template is used, then none of the other templates will be
 used for that table style and the results of processing 'empty.txt' will be the only thing displayed.
 
+=back
 
 =head2 Methods
 
 These are the methods that extend the basic functions of the C<Text::Merge> object.  Note that we overload 
 C<convert_value()> in order to insert our list style format recognition and interpretation.  This is
 very elegant and easy to do.
+
+=over 4
 
 =cut
 

@@ -343,7 +343,7 @@ package Text::Merge;
 use FileHandle;
 use AutoLoader 'AUTOLOAD';
 
-$Text::Merge::VERSION = '0.34';
+$Text::Merge::VERSION = '0.35';
 
 @Text::Merge::mon = qw(Jan. Feb. Mar. Apr. May June July Aug. Sep. Oct. Nov. Dec.);
 @Text::Merge::month = qw(January February March April May June July August September October November December);
@@ -612,23 +612,29 @@ Be careful not to run this with write permission on the sendmail file and forget
 =cut
 sub publish_email {
 	my ($self, $mailer, $headers, $filepath, $data, $actions) = @_;
-	my ($recipient, $subject, $ccaddr, $replyto, $from) = 
-		( ($$headers{To} || ''), ($$headers{Subject} || ''), ($$headers{CC} || ''), ($$headers{ReplyTo}), ($$headers{From} || '') );
+	my ($recipient, $subject, $ccaddr, $replyto, $from, $ctype) = 
+		( ($$headers{To} || ''), ($$headers{Subject} || ''), ($$headers{CC} || ''), ($$headers{ReplyTo}), ($$headers{From} || ''), ($$headers{'Content-type'} || $$headers{'Content-Type'} || $$headers{'ContentType'} || '') );
 	$mailer && $recipient || (return '');
-	my ($toheader, $subheader, $ccheader, $repheader, $fromheader) = ('','','','','');
+	my ($toheader, $subheader, $ccheader, $repheader, $fromheader, $typeheader) = ('','','','','','');
+	$subject && $subject =~ s/[^\040-\176].*$//gs;		# remove dangerous chars
+	$from && $from =~ s/[^\040-\176].*$//gs;		# remove dangerous chars
+	$ccaddr && $ccaddr =~ s/[^\040-\176].*$//gs;		# remove dangerous chars
+	$replyto && $replyto =~ s/[^\040-\176].*$//gs;	# remove dangerous chars
+	$ctype && $ctype =~ s/[^\040-\176].*$//gs;	# remove dangerous chars
 	$subject || ($subject = 'Web Notice');
 	if ($mailer=~/RECIPIENT/) { $mailer =~ s/RECIPIENT/$recipient/g; } else { $toheader = "To: $recipient\n"; };
 	if ($mailer=~/SUBJECT/) { $mailer =~ s/SUBJECT/$subject/g; } else { $subheader = "Subject: $subject\n"; };
 	$from && ($fromheader = "From: $from\n");
 	$ccaddr && ($ccheader="Cc: $ccaddr\n");
 	$replyto && ($repheader="Reply-to: $replyto\n");
+    $ctype && ($typeheader="Content-Type: $ctype\n");
 	if ($mailer eq 'SMTP') {
 		# We will put an SMTP (require Net::SMTP) mailer here
 		return 0;
 	} else {
 		my $fh = new FileHandle($mailer);
 		if (!$fh) { return ''; };
-		if ($toheader || $subheader) { print $fh $toheader.$fromheader.$subheader.$ccheader.$repheader."\n"; };
+		if ($toheader || $subheader || $typeheader || $ccheader) { print $fh $toheader.$fromheader.$subheader.$ccheader.$repheader.$typeheader."\n"; };
 		$self->publish_to($fh, $filepath, $data, $actions);
 		$fh->close;
 		return 1;
@@ -912,7 +918,7 @@ requires use of the package C<FileHandle> which is part of the standard perl dis
 =head1 AUTHOR
 
 This software is released under the Perl Artistic License.  Derive what you wish, as you wish, but please
-attribute releases and include derived source code.  (C) 1997-2000 by Steven D. Harris, perl@nullspace.com
+attribute releases and include derived source code.  (C) 1997-2004 by Steven D. Harris, perl@nullspace.com
 
 =cut
 

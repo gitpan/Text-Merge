@@ -3,10 +3,9 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
 	'NAME' => 'Text::Merge',
-	'PM' => { 'Merge.pm' => '$(INST_LIBDIR)/Merge.pm',
-		  'Merge/Lists.pm' => 
-				'$(INST_LIBDIR)/Merge/Lists.pm' },
-	'INC' => [ './blib/' ]
+	'PM' => { 'lib/Text/Merge.pm' => '$(INST_LIBDIR)/Merge.pm',
+		      'lib/Text/Merge/Lists.pm' => '$(INST_LIBDIR)/Merge/Lists.pm' },
+	'INC' => './blib/' 
 );
 
 print qq|
