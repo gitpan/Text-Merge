@@ -2,7 +2,7 @@
 use strict;
 
 #
-# Text::Merge.pm - v.0.23 BETA
+# Text::Merge.pm - v.0.24 BETA
 #
 # (C) 1997, 1998, 1999 by Steven D. Harris. 
 # 
@@ -11,7 +11,7 @@ use strict;
 
 =head1 NAME
 
-Text::Merge - v.0.23  General purpose text/data merging methods in Perl. 
+Text::Merge - v.0.24  General purpose text/data merging methods in Perl. 
 
 =head1 SYNOPSIS
 
@@ -336,7 +336,7 @@ are using line by line mode.  In this case you should use a FileHandle or file p
 package Text::Merge;
 use FileHandle;
 
-$Text::Merge::VERSION = '0.23';
+$Text::Merge::VERSION = '0.24';
 
 @Text::Merge::mon = qw(Jan. Feb. Mar. Apr. May June July Aug. Sep. Oct. Nov. Dec.);
 @Text::Merge::month = qw(January February March April May June July August September October November December);
@@ -536,6 +536,7 @@ the header information.  Only the following header keys are recognized:
 	Subject
 	Reply-To
 	CC
+	From (works for privileged users only)
 
 The values associated with these keys will be used to construct the desired e-mail message header.  Secure 
 minded site administrators might put hooks in here, or even better clean the data,  to protect access to 
@@ -551,18 +552,19 @@ Be careful not to run this with write permission on the sendmail file and forget
 =cut
 sub publish_email {
 	my ($self, $mailer, $headers, $filepath, $data, $actions) = @_;
-	my ($recipient, $subject, $ccaddr, $replyto) = 
-		{ ($$headers{To} || ''), ($$headers{Subject} || ''), ($$headers{CC} || ''), ($$headers{ReplyTo}) };
+	my ($recipient, $subject, $ccaddr, $replyto, $from) = 
+		( ($$headers{To} || ''), ($$headers{Subject} || ''), ($$headers{CC} || ''), ($$headers{ReplyTo}), ($$headers{From} || '') );
 	$mailer && $recipient || (return '');
-	my ($toheader, $subheader, $ccheader, $repheader) = ('','','','');
+	my ($toheader, $subheader, $ccheader, $repheader, $fromheader) = ('','','','','');
 	$subject || ($subject = 'Web Notice');
 	if ($mailer=~/RECIPIENT/) { $mailer =~ s/RECIPIENT/$recipient/g; } else { $toheader = "To: $recipient\n"; };
 	if ($mailer=~/SUBJECT/) { $mailer =~ s/SUBJECT/$subject/g; } else { $subheader = "Subject: $subject\n"; };
+	$from && ($fromheader = "From: $from\n");
 	$ccaddr && ($ccheader="Cc: $ccaddr\n");
 	$replyto && ($repheader="Reply-to: $replyto\n");
 	my $fh = new FileHandle($mailer);
 	if (!$fh) { return ''; };
-	if ($toheader || $subheader) { print $fh $toheader.$subheader.$ccheader.$repheader."\n"; };
+	if ($toheader || $subheader) { print $fh $toheader.$fromheader.$subheader.$ccheader.$repheader."\n"; };
 	$self->publish_to($fh, $filepath, $data, $actions);
 	$fh->close;
 	return 1;

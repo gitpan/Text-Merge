@@ -98,3 +98,12 @@ probably CGI.pm, too).
 =======================================================================
 
 
+=======================================================================
+0.23 -> 0.24	 4/6/99 -sdh
+-----------------------------------------------------------------------
+Fixed bug in parameterization of header info in publish_email().  How
+did we miss this?  Added 'From' support but the mailer only supports
+it for privileged users for obvious reasons.
+=======================================================================
+
+
