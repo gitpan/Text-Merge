@@ -23,17 +23,17 @@ my $publisher = new Text::Merge::Lists('t/liststyles/');
 print "1..1\n";
 $publisher->line_by_line(1);
 
-my $input = 't/tableinput2.txt';
-my $ofile = '/tmp/testPublish-'.$$.'.txt';
+my $input = 't/tablein2.txt';
+my $ofile = 't/tmp/TPB'.$$.'.txt';
 my $output = new FileHandle(">$ofile") or die "Can't open $ofile for output";
 
 $publisher->publish_to($output, $input, $data, $actions);  $output->close; $ct++;
 
-my $diff = `diff t/tableresults2.txt $ofile`;
+my $diff = `perl t/diffutil t/tablres2.txt $ofile`;
 if ($diff) { print "not ok\n";  print STDERR "DIFF: $diff\n"; } 
 else { $passed++;  print "ok\n"; };
 
-# if (-e $ofile) { unlink $ofile; };
+if (-e $ofile) { unlink $ofile; };
 
 exit ($passed ne $ct || $diff && 1 || 0);
 

@@ -13,16 +13,16 @@ my $publisher = new Text::Merge;
 
 print "1..1\n";
 
-my $input = new FileHandle("<t/input.txt");
+my $input = 't/delimin.txt';
 my $ofile = 't/tmp/TPB'.$$.'.txt';
 my $output = new FileHandle(">$ofile") or die "Can't open $ofile for output";
 
-my $item = { 'Data'=>$data, 'Actions'=>$actions };
-$publisher->publish_to($output, $input, $item);  $output->close; $ct++;
-$input->close;
+$publisher->set_delimiters('<[', ']>');
+$publisher->publish_to($output, $input, $data, $actions);  $output->close; $ct++;
 
 my $diff = `perl t/diffutil t/results.txt $ofile`;
-if ($diff) { print "not ok\n"; } else { $passed++;  print "ok\n"; };
+if ($diff) { print "not ok\n";  print STDERR "DIFF: $diff\n"; } 
+else { $passed++; print "ok\n"; };
 
 if (-e $ofile) { unlink $ofile; };
 
@@ -36,7 +36,7 @@ sub apple_pie {
 };
 
 sub slurp {
-	my $filename = shift;
+	my $filename;
 	my $fh = new FileHandle("<$filename") || return '';
 	my $text = '';
 	foreach (<$fh>) { $text.=$_; };

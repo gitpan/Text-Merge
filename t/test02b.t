@@ -15,14 +15,14 @@ print "1..1\n";
 $publisher->line_by_line(1);
 
 my $input = 't/input.txt';
-my $ofile = '/tmp/testPublish-'.$$.'.txt';
+my $ofile = 't/tmp/TPB'.$$.'.txt';
 my $output = new FileHandle(">$ofile") or die "Can't open $ofile for output";
 
 my $text=$publisher->publish_text($input, $data, $actions);  
 print $output $text;  $output->close; 
 $ct++;
 
-my $diff = `diff t/results.txt $ofile`;
+my $diff = `perl t/diffutil t/results.txt $ofile`;
 if ($diff) { print "not ok\n";  print STDERR "DIFF:$diff\n"; } 
 else { $passed++; print "ok\n"; };
 

@@ -1,7 +1,7 @@
 <HTML>
 <HEAD>
-<TITLE>Text::Merge - v.0.25  General purpose text/data merging methods in Perl.</TITLE>
-<LINK REV="made" HREF="mailto:perl@nullspace.com">
+<TITLE>Text::Merge - v.0.28  General purpose text/data merging methods in Perl.</TITLE>
+<LINK REV="made" HREF="mailto:root@porky.devel.redhat.com">
 </HEAD>
 
 <BODY>
@@ -32,7 +32,7 @@
 <P>
 <H1><A NAME="NAME">NAME</A></H1>
 <P>
-Text::Merge - v.0.25 General purpose text/data merging methods in Perl. 
+Text::Merge - v.0.28 General purpose text/data merging methods in Perl. 
 
 <P>
 <HR>
@@ -44,6 +44,9 @@ Text::Merge - v.0.25 General purpose text/data merging methods in Perl.
 <PRE>        $merge-&gt;line_by_line();         # query
         $merge-&gt;line_by_line(0);        # turn off
         $merge-&gt;line_by_line(1);        # turn on
+</PRE>
+<P>
+<PRE>        $merge-&gt;set_delimiters('&lt;&lt;', '&gt;&gt;');  # user defined delims
 </PRE>
 <P>
 <PRE>        $success = $merge-&gt;publish($template, \%data);
@@ -433,6 +436,13 @@ This method returns the current setting if the <CODE>$setting</CODE> argument is
 setting requested. A non-zero value tells the publishing methods to process
 the template line by line. For those methods that output results to a
 handle, then those results will also be echoed line by line.
+
+<DT><STRONG><A NAME="item_set_delimiters">set_delimiters($start, $end)</A></STRONG><DD>
+<P>
+This method assigns a new command delimiter set for the tags. The 'colon'
+character is not allowed within the delimiter, and the delimiter may not be
+a single curly bracket. Both delimiters must be provided, and they cannot
+be identical.
 
 <DT><STRONG><A NAME="item_publish">publish($template, $dataref, $actionref)</A></STRONG><DD>
 <P>

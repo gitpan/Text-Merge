@@ -8,11 +8,13 @@ use strict;
 
 =head1 NAME
 
-Text::Merge::Lists - v.0.25 Text/data merge with lists/table support
+Text::Merge::Lists - v.0.28 Text/data merge with lists/table support
 
 =head1 SYNOPSIS
 
 	$filter = new Text::Merge::Lists($template_path);
+
+	$filter->set_max_nesting_depth($intval);
 
 
 =head1 DESCRIPTION
@@ -27,6 +29,12 @@ in your programs to use the C<Text::Merge::Lists> object instead of the C<Text::
 which must be invoked with the "Template Path" to the directory containing your various arbitrary lists 
 style directories, described later.  See the C<Text::Merge> object for a description of the publishing methods 
 available to you.
+
+Lists can be nested, and you can use the C<set_max_nesting_depth()> object method to override 
+the default maximum nesting depth of 3.  That is to say, you can only have a list of a list of a list 
+by default.  If you want to nest further you will need to adjust this value.  The depth limit here is to
+prevent you from clobbering the perl stack (and possibly other memory!) with deep recursion.
+
 
 =head2 List Structure
 
@@ -208,7 +216,8 @@ must contain the <TD ...> and </TD> elements of the cell.  This is a simple exam
 
 	<TD COLSPAN="REF:FillerColumns"><I>this is filler</I></TD>
 
-This cell will be created with a single space character as content if the template does not exist.
+The filler cell will be created with a single non-blocking space character (I<&nbsp;>) as content if no 
+C<filler.txt> template file exists. 
 
 
 =item Item Type Cell Template
@@ -246,7 +255,7 @@ package Text::Merge::Lists;
 use Text::Merge;
 use FileHandle;
 
-$Text::Merge::Lists::VERSION = '0.25';
+$Text::Merge::Lists::VERSION = '0.28';
 @Text::Merge::Lists::ISA = ('Text::Merge');
 
 1;
@@ -280,6 +289,18 @@ sub convert_value {
 	     $style !~ /^(list|table\d+)\_(\w+)$/) { return Text::Merge::convert_value(@_); };
 	my ($liststyle, $listtype) = ($2, $1);
 	return $self->handle_list_style($value, $listtype, $liststyle, $item);
+};
+
+
+=item set_max_nesting_depth($intval) 
+
+This method assigns the maximum nesting depth for lists.  The default maximum depth is 3.
+
+=cut
+sub set_max_nesting_depth {
+	my ($self, $ival) = @_;
+	if ($ival >= 0) { $$self{'_Text_Merge_Lists_MaxDepth'} = $ival; } 
+	else { $$self{'_Text_Merge_Lists_MaxDepth'} = 3; };
 };
 
 
@@ -339,6 +360,12 @@ sub handle_list_style {
 	my ($self, $list, $type, $style, $parent) = @_;
 	my $text = '';
 	my $cache = $$self{_Text_Merge_Lists_Cache};
+	my $depth = $$self{_Text_Merge_Lists_Depth} || 0;
+	if ($depth>($$self{_Text_Merge_Lists_MaxDepth} || 3)) {
+		warn "Maximum nested lists depth exceeded.\n";
+		return '';
+	}
+	$$self{'_Text_Merge_Lists_Depth'}=++$depth;
 	$style =~ s/\W//g;
 	my $width = 0;
 	if ($type =~ /^table(\d+)$/i) { $width = $1;  ($width < 1) && ($width = 1);  $type='table'; };
@@ -366,6 +393,7 @@ sub handle_list_style {
 		if ($message) { $text = $self->publish_text($message,$parent); };
 	    };
 	};
+	$$self{'_Text_Merge_Lists_Depth'}--;
 	return $text;
 };
 

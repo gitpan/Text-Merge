@@ -1,7 +1,7 @@
 <HTML>
 <HEAD>
-<TITLE>Text::Merge::Lists - v.0.25 Text/data merge with lists/table support</TITLE>
-<LINK REV="made" HREF="mailto:perl@nullspace.com">
+<TITLE>Text::Merge::Lists - v.0.28 Text/data merge with lists/table support</TITLE>
+<LINK REV="made" HREF="mailto:root@porky.devel.redhat.com">
 </HEAD>
 
 <BODY>
@@ -32,13 +32,16 @@
 <P>
 <H1><A NAME="NAME">NAME</A></H1>
 <P>
-Text::Merge::Lists - v.0.25 Text/data merge with lists/table support
+Text::Merge::Lists - v.0.28 Text/data merge with lists/table support
 
 <P>
 <HR>
 <H1><A NAME="SYNOPSIS">SYNOPSIS</A></H1>
 <P>
 <PRE>        $filter = new Text::Merge::Lists($template_path);
+</PRE>
+<P>
+<PRE>        $filter-&gt;set_max_nesting_depth($intval);
 </PRE>
 <P>
 <HR>
@@ -53,6 +56,13 @@ All the features of the <CODE>Text::Merge</CODE> package are supported and invok
 difference in your programs to use the <CODE>Text::Merge::Lists</CODE> object instead of the <CODE>Text::Merge</CODE> object is the constructor, which must be invoked with the ``Template Path''
 to the directory containing your various arbitrary lists style directories,
 described later. See the <CODE>Text::Merge</CODE> object for a description of the publishing methods available to you.
+
+<P>
+Lists can be nested, and you can use the <A HREF="#item_set_max_nesting_depth">set_max_nesting_depth()</A> object method to override the default maximum nesting depth of 3. That is
+to say, you can only have a list of a list of a list by default. If you
+want to nest further you will need to adjust this value. The depth limit
+here is to prevent you from clobbering the perl stack (and possibly other
+memory!) with deep recursion.
 
 <P>
 <HR>
@@ -264,8 +274,9 @@ cell. This is a simple example filler cell template:
 <PRE>        &lt;TD COLSPAN=&quot;REF:FillerColumns&quot;&gt;&lt;I&gt;this is filler&lt;/I&gt;&lt;/TD&gt;
 </PRE>
 <P>
-This cell will be created with a single space character as content if the
-template does not exist.
+The filler cell will be created with a single non-blocking space character
+(<EM>&nbsp;</EM>) as content if no 
+<CODE>filler.txt</CODE> template file exists. 
 
 <DT><STRONG><A NAME="item_Item">Item Type Cell Template</A></STRONG><DD>
 <P>
@@ -306,6 +317,11 @@ the template path is omitted, an the call is treated as a normal <CODE>Text::Mer
 <DT><STRONG><A NAME="item_convert_value">convert_value($dataref, $name, $style, $item)</A></STRONG><DD>
 <P>
 This method catches list styles and handles them, otherwise the <CODE>Text::Merge</CODE> method is used.
+
+<DT><STRONG><A NAME="item_set_max_nesting_depth">set_max_nesting_depth($intval)</A></STRONG><DD>
+<P>
+This method assigns the maximum nesting depth for lists. The default
+maximum depth is 3.
 
 <DT><STRONG><A NAME="item_sort_list">sort_list($methodstr, $listref)</A></STRONG><DD>
 <P>

@@ -1,34 +1,111 @@
 
+
 =======================================================================
-0.11 -> 0.12     12/18/98 -sdh
+0.27 -> 0.28     8/24/99 -sdh
 -----------------------------------------------------------------------
-Fixed critical linkage bug in publish()
+Added AutoLoading for the filter functions.
+
+Added custom tag delimiters (outer brackets only).  See the 
+'set_delimiters()' object method.
+
+Put in a default list nesting depth of 3 for nested lists.  See the
+'set_max_nesting_depth()' object method for Text::Merge::Lists.
+
+Minor changes to test organization.  Also added two tests for
+nesting depth limits.  Added one test for delimiter reassignment.
 =======================================================================
 
 
 =======================================================================
-0.12 -> 0.13	 12/19/98 -sdh
+0.26 -> 0.27	 8/23/99 -sdh
 -----------------------------------------------------------------------
-Fixed warning on null formats in handle_tag()
+This release mainly adjusts the tests to (hopefully) run on more
+platforms.
+
+Altered 'TestDate' definition in the t/test.pl file to be system
+independent using Time::Local to obtain the test value.  
+Updated test files to generate the input and output files, instead
+of using UNIX files from the tarball.
+
+Added perl program 't/diffutil' instead of using the UNIX 'diff' 
+utility.  It's not as robust, but it works for testing.
+
+Fixed 't/test13.t' and 't/test14.t' to clean up after themselves.
 =======================================================================
 
 
 =======================================================================
-0.13 -> 0.14	 12/20/98 -sdh
+0.25 -> 0.26	 7/12/99 -sdh
 -----------------------------------------------------------------------
-Fixed bug whereby data was not passed to convert_value() in 
-Publish::Lists for the header,footer,divider, and empty components.
+Improved parse, to allow nesting of non-delimited commands within
+delimited commands.
 =======================================================================
 
 
 =======================================================================
-0.14 -> 0.15	 12/23/98 -sdh
+0.24 -> 0.25	 5/17/99 -sdh
 -----------------------------------------------------------------------
-Changed namespace from "Publish" to "Text::Merge" per the CPAN 
-registration.
+Added 'truncate' or 'trunc' instead of just 'trunc' format for text
+output.
 
-Fixed typo for line-by-line mode in publish_to() for publishing 
-Filename to FileHandle.
+Improved logic in determining whether template parameter is a text
+block, filename, or FileHandle reference.
+=======================================================================
+
+
+=======================================================================
+0.23 -> 0.24	 4/6/99 -sdh
+-----------------------------------------------------------------------
+Fixed bug in parameterization of header info in publish_email().  How
+did we miss this?  Added 'From' support but the mailer only supports
+it for privileged users for obvious reasons.
+=======================================================================
+
+
+=======================================================================
+0.22 -> 0.23	 3/29/99 -sdh
+-----------------------------------------------------------------------
+Added conversion of &gt; &lt; &amp; and &quot; in browser_unescape() 
+in Merge.pm so that we are compatible with the CGI::Base module (and
+probably CGI.pm, too).
+=======================================================================
+
+
+=======================================================================
+0.21 -> 0.22	 3/4/99 -sdh
+-----------------------------------------------------------------------
+Fixed bug in test programs to handle no elegant Time Zone conversion
+in perl.  Now the test input is constructed before the tests are run.
+
+Added 'paragraph##' and 'indent##' formats for text output.
+=======================================================================
+
+
+=======================================================================
+0.20 -> 0.21	 2/21/99 -sdh
+-----------------------------------------------------------------------
+Fixed bug in table style display related to filler cell.
+=======================================================================
+
+
+=======================================================================
+0.18 -> 0.20	 2/11/99 -sdh
+-----------------------------------------------------------------------
+Added HTML table style support.
+=======================================================================
+
+
+=======================================================================
+0.17 -> 0.18	 1/29/99 -sdh
+-----------------------------------------------------------------------
+Null value now returned on date conversions of empty or zero values.
+=======================================================================
+
+
+=======================================================================
+0.16 -> 0.17	 1/14/99 -sdh
+-----------------------------------------------------------------------
+Added the conversion format 'words#' where # is an integer.
 =======================================================================
 
 
@@ -52,69 +129,35 @@ Added url_encode() & url_decode() to the Text::Merge package.
 
 
 =======================================================================
-0.16 -> 0.17	 1/14/99 -sdh
+0.14 -> 0.15	 12/23/98 -sdh
 -----------------------------------------------------------------------
-Added the conversion format 'words#' where # is an integer.
+Changed namespace from "Publish" to "Text::Merge" per the CPAN 
+registration.
+
+Fixed typo for line-by-line mode in publish_to() for publishing 
+Filename to FileHandle.
 =======================================================================
 
 
 =======================================================================
-0.17 -> 0.18	 1/29/99 -sdh
+0.13 -> 0.14	 12/20/98 -sdh
 -----------------------------------------------------------------------
-Null value now returned on date conversions of empty or zero values.
+Fixed bug whereby data was not passed to convert_value() in 
+Publish::Lists for the header,footer,divider, and empty components.
 =======================================================================
 
 
 =======================================================================
-0.18 -> 0.20	 2/11/99 -sdh
+0.12 -> 0.13	 12/19/98 -sdh
 -----------------------------------------------------------------------
-Added HTML table style support.
+Fixed warning on null formats in handle_tag()
 =======================================================================
 
 
 =======================================================================
-0.20 -> 0.21	 2/21/99 -sdh
+0.11 -> 0.12     12/18/98 -sdh
 -----------------------------------------------------------------------
-Fixed bug in table style display related to filler cell.
-=======================================================================
-
-
-=======================================================================
-0.21 -> 0.22	 3/4/99 -sdh
------------------------------------------------------------------------
-Fixed bug in test programs to handle no elegant Time Zone conversion
-in perl.  Now the test input is constructed before the tests are run.
-
-Added 'paragraph##' and 'indent##' formats for text output.
-=======================================================================
-
-
-=======================================================================
-0.22 -> 0.23	 3/29/99 -sdh
------------------------------------------------------------------------
-Added conversion of &gt; &lt; &amp; and &quot; in browser_unescape() 
-in Merge.pm so that we are compatible with the CGI::Base module (and
-probably CGI.pm, too).
-=======================================================================
-
-
-=======================================================================
-0.23 -> 0.24	 4/6/99 -sdh
------------------------------------------------------------------------
-Fixed bug in parameterization of header info in publish_email().  How
-did we miss this?  Added 'From' support but the mailer only supports
-it for privileged users for obvious reasons.
-=======================================================================
-
-
-=======================================================================
-0.24 -> 0.25	 5/17/99 -sdh
------------------------------------------------------------------------
-Added 'truncate' or 'trunc' instead of just 'trunc' format for text
-output.
-
-Improved logic in determining whether template parameter is a text
-block, filename, or FileHandle reference.
+Fixed critical linkage bug in publish()
 =======================================================================
 
 

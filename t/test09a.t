@@ -14,13 +14,13 @@ my $publisher = new Text::Merge;
 print "1..1\n";
 
 my $input = slurp('t/input.txt');
-my $ofile = '/tmp/testPublish-'.$$.'.txt';
+my $ofile = 't/tmp/TPB'.$$.'.txt';
 my $output = new FileHandle(">$ofile") or die "Can't open $ofile for output";
 
 my $item = { 'ItemType'=>'testitem', 'Data'=>$data, 'Actions'=>$actions };
 $publisher->publish_to($output, $input, $item);  $output->close; $ct++;
 
-my $diff = `diff t/results.txt $ofile`;
+my $diff = `perl t/diffutil t/results.txt $ofile`;
 if ($diff) { print "not ok\n"; } else { $passed++;  print "ok\n"; };
 
 if (-e $ofile) { unlink $ofile; };

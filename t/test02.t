@@ -18,12 +18,12 @@ $publisher->line_by_line(1);
 # my $output = new FileHandle(">$ofile" ) or die "Can't open $ofile for ouput";
 
 my $input = 't/input.txt';
-my $ofile = '/tmp/testPublish-'.$$.'.txt';
+my $ofile = 't/tmp/TPB'.$$.'.txt';
 my $output = new FileHandle(">$ofile") or die "Can't open $ofile for output";
 
 $publisher->publish_to($output, $input, $data, $actions);  $output->close; $ct++;
 
-my $diff = `diff t/results.txt $ofile`;
+my $diff = `perl t/diffutil t/results.txt $ofile`;
 if ($diff) { print "not ok\n";  print STDERR "DIFF: $diff\n"; } 
 else { $passed++; print "ok\n"; };
 

@@ -2,7 +2,7 @@
 use strict;
 
 #
-# Text::Merge.pm - v.0.25 BETA
+# Text::Merge.pm - v.0.28 BETA
 #
 # (C) 1997, 1998, 1999 by Steven D. Harris. 
 # 
@@ -11,7 +11,7 @@ use strict;
 
 =head1 NAME
 
-Text::Merge - v.0.25  General purpose text/data merging methods in Perl. 
+Text::Merge - v.0.28  General purpose text/data merging methods in Perl. 
 
 =head1 SYNOPSIS
 
@@ -20,6 +20,8 @@ Text::Merge - v.0.25  General purpose text/data merging methods in Perl.
 	$merge->line_by_line();		# query
 	$merge->line_by_line(0);	# turn off
 	$merge->line_by_line(1);	# turn on
+
+	$merge->set_delimiters('<<', '>>');  # user defined delims
 
 	$success = $merge->publish($template, \%data);
 	$success = $merge->publish($template, \%data, \%actions);
@@ -335,8 +337,9 @@ are using line by line mode.  In this case you should use a FileHandle or file p
 
 package Text::Merge;
 use FileHandle;
+use AutoLoader 'AUTOLOAD';
 
-$Text::Merge::VERSION = '0.25';
+$Text::Merge::VERSION = '0.28';
 
 @Text::Merge::mon = qw(Jan. Feb. Mar. Apr. May June July Aug. Sep. Oct. Nov. Dec.);
 @Text::Merge::month = qw(January February March April May June July August September October November December);
@@ -359,6 +362,8 @@ sub new {
 	my $class = shift;
 	my $ref = {};
 	$$ref{_Text_Merge_LineMode} = 0;
+	$$ref{_Text_Merge_Delimiter1} = quotemeta('[[');
+	$$ref{_Text_Merge_Delimiter2} = quotemeta(']]');
 	return bless $ref, $class;
 };
 
@@ -378,6 +383,33 @@ sub line_by_line {
 };
 
 
+=item set_delimiters($start, $end)
+
+This method assigns a new command delimiter set for the tags.  The 'colon' character is not allowed
+within the delimiter, and the delimiter may not be a single curly bracket.  Both delimiters must 
+be provided, and they cannot be identical.
+
+=cut
+sub set_delimiters {
+	my ($self, $start, $end) = @_;
+	if (!$start || !$end) {
+		warn "Invalid delimiters provided to Text::Merge::set_delimiter().\n";
+		return 0;
+	};
+	if ($start =~ /\:/ || $end =~ /\:/) {
+		warn "The 'colon' character (:) is not allowed in Text::Merge delimiters.\n";
+	}
+	if ($start =~ /^[\{\}]$/ || $end =~ /^[\{\}]$/) {
+		warn "Neither Text::Merge delimiter can be a curly bracket ({) or (}).\n";
+	}
+	if (!($start cmp $end)) {
+		warn "The start and end Text::Merge delmiters must differ.\n";
+	};
+	$$self{_Text_Merge_Delimiter1} = quotemeta($start);
+	$$self{_Text_Merge_Delimiter2} = quotemeta($end);
+};
+
+
 #
 # This is the core filtering engine.  It consists of:
 #	text_process() - this method
@@ -390,19 +422,22 @@ sub text_process {
 	my $ret = $text;
 	if (!$item) { warn "Improper call to text_process() in $0.  no item.\n";  return $ret; };
 	if (!$ret) { warn "Improper call to text_process() in $0.  no text.\n";  return $ret; };
-	$ret && $ret =~ s/\[\[({(?:[^\{\}]*)\}(?:REF\:|ACT\:)|IF\:|NEG\:)(\w+(?:\:\w+)*)?\{([^\{\}]*)\}\]\]/$self->
-	 									handle_cond($1,$2,$3,$item)/eg;
+	$ret && $ret =~ s/$$self{_Text_Merge_Delimiter1}({(?:[^\{\}]*)\}(?:REF\:|ACT\:)|IF\:|NEG\:)(\w+(?:\:\w+)*)?\{((?:[^\}]|\}(?!$$self{_Text_Merge_Delimiter2}))*)\}$$self{_Text_Merge_Delimiter2}/$self->
+	 									handle_cond($1,$2,$3,$item)/oeg;
 	$ret && $ret =~ s/({(?:[^\{\}]*)\}(?:REF\:|ACT\:)|IF\:|NEG\:)(\w+(?:\:\w+)*)?\{([^\{\}]*)\}/$self->
-	 									handle_cond($1,$2,$3,$item)/eg;
-	$ret && $ret =~ s/\[\[(REF|ACT)\:(\w+)((?:\:\w+)*)\]\]/$self->handle_tag($item,$1,$2,($3 || ''))/eg;
-	$ret && $ret =~ s/\b(REF|ACT)\:(\w+)((?:\:\w+)*)\b/$self->handle_tag($item,$1,$2,($3 || ''))/eg;
+	 									handle_cond($1,$2,$3,$item)/oeg;
+	$ret && $ret =~ s/$$self{_Text_Merge_Delimiter1}(REF|ACT)\:(\w+)((?:\:\w+)*)$$self{_Text_Merge_Delimiter2}/$self->handle_tag($item,$1,$2,($3 || ''))/oeg;
+	$ret && $ret =~ s/\b(REF|ACT)\:(\w+)((?:\:\w+)*)\b/$self->handle_tag($item,$1,$2,($3 || ''))/oeg;
 	return $ret;
 };
 
 
 sub handle_tag {
 	my ($self, $item, $tag, $field, $formats) = @_;
-	if ($tag eq 'ACT') { return $self->handle_action($field, $item); };
+	if ($tag eq 'ACT') { 
+		my $text = $self->handle_action($field, $item); 
+		return $text;
+	};
 	$formats && $formats =~ s/^\://g;	
 	my @formats = split(/\:/, ($formats || ''));
 	my $format;
@@ -416,7 +451,9 @@ sub handle_tag {
 sub handle_action {
 	my ($self, $field, $item) = @_;
 	my $sub = $$item{Actions}{$field} || return '';
-	return &{$sub}($$item{ItemType} && $item || $$item{Data});
+	my $arg = $$item{ItemType} && $item || $$item{Data};
+	my $result = &{$sub}($arg);
+	return $result;
 };
 
 # args are:  self, {prefix}TAG:, field+formats, suffix
@@ -506,7 +543,7 @@ sub publish_text {
 	if (!$template) { 
 		warn "No template provided to ".(ref $self)."->filter.\n";
 		return 0;
-	} elsif (!($ref=ref($template)) && !(-f $template)) { 
+	} elsif (($template=~/(?:(?:\r?\n)|\r)/) || (!($ref=ref($template)) && !(-f $template)) ) { 
 		return $self->text_process($template, $item); 
 	} elsif ( $ref && $ref=~/FileHandle/ && ($fh=$template) || 
 		 (-f $template) && ($fh = new FileHandle($template))) {
@@ -562,12 +599,17 @@ sub publish_email {
 	$from && ($fromheader = "From: $from\n");
 	$ccaddr && ($ccheader="Cc: $ccaddr\n");
 	$replyto && ($repheader="Reply-to: $replyto\n");
-	my $fh = new FileHandle($mailer);
-	if (!$fh) { return ''; };
-	if ($toheader || $subheader) { print $fh $toheader.$fromheader.$subheader.$ccheader.$repheader."\n"; };
-	$self->publish_to($fh, $filepath, $data, $actions);
-	$fh->close;
-	return 1;
+	if ($mailer eq 'SMTP') {
+		# We will put an SMTP (require Net::SMTP) mailer here
+		return 0;
+	} else {
+		my $fh = new FileHandle($mailer);
+		if (!$fh) { return ''; };
+		if ($toheader || $subheader) { print $fh $toheader.$fromheader.$subheader.$ccheader.$repheader."\n"; };
+		$self->publish_to($fh, $filepath, $data, $actions);
+		$fh->close;
+		return 1;
+	};
 };
 
 sub enc_char {
@@ -596,40 +638,43 @@ sub convert_value {
 	($_=$style) || ($_ = 'string');
 	/^upper/i &&     (return uc($value || '')) ||
 	/^lower/i &&     (return lc($value || '')) ||
-	/^proper/i &&    (return proper_noun($value || '')) ||
+	/^proper/i &&    (return propnoun($value || '')) ||
 	/^trunc(?:ate)?(\d+)/ && (return substr($value, 0, $1)) ||
-	/^words(\d+)/ && (return first_words($value, $1)) ||
-	/^para(?:graph)?(\d+)/ && (return paragraph_text($value, $1)) ||
-	/^indent(\d+)/ && (return indent_text($value, $1)) ||
+	/^words(\d+)/ && (return frstword($value, $1)) ||
+	/^para(?:graph)?(\d+)/ && (return paratext($value, $1)) ||
+	/^indent(\d+)/ && (return indtext($value, $1)) ||
 	/^int/i &&       (return int($value)) ||
 	/^float/i &&     (return (defined $value && sprintf('%f',($value || 0))) || '') ||
 	/^string/i &&    (return $value) ||
-	/^html/i &&	 (return html_convert($value)) ||
+	/^html/i &&	 (return htmlconv($value)) ||		# Convert text to HTML
 	/^dollars/i &&   (return (defined $value && length($value) && sprintf('%.2f',($value || 0)) || '')) ||
 	/^percent/i &&   (return (($value<0.2) && sprintf('%.1f%%',($value*100)) || sprintf('%d%%',int($value*100)))) ||
-	/^abbr/i &&      (return abbr_date($value)) ||		# abbreviated date only
-	/^short/i &&     (return short_date($value)) ||		# short date/time
-	/^time/i &&      (return time_of_day($value)) ||	# time of day only (localtime am/pm)
-	/^24h/i &&       (return time_24hr($value)) ||		# time of day 23:59 format (localtime0
-	/^dateonly/i &&  (return date_only($value)) ||		# same as full date, but no meridian time
-	/^date/i &&      (return full_date($value)) ||		# full date
-	/^ext/i &&       (return extended_date($value)) ||
+	/^abbr/i &&      (return abbrdate($value)) ||		# abbreviated date only
+	/^short/i &&     (return shrtdate($value)) ||		# short date/time
+	/^time/i &&      (return timeoday($value)) ||	# time of day only (localtime am/pm)
+	/^24h/i &&       (return time24hr($value)) ||		# time of day 23:59 format (localtime0
+	/^dateonly/i &&  (return dateonly($value)) ||		# same as full date, but no meridian time
+	/^date/i &&      (return fulldate($value)) ||		# full date
+	/^ext/i &&       (return extdate($value)) ||		# extended date
 	/^unix/i &&      (return scalar localtime($value)) ||
-	/^urlencode/i && (return url_encode($value)) ||
-	/^urldecode/i && (return url_decode($value)) ||
-	/^escape/i &&    (return browser_escape($value)) ||
-	/^unescape/i &&  (return browser_unescape($value)) ||
+	/^urlencode/i && (return urlenc($value)) ||		# URL encoded
+	/^urldecode/i && (return urldec($value)) ||		# URL decoded
+	/^escape/i &&    (return brsresc($value)) ||		# Browser Escape
+	/^unescape/i &&  (return brsruesc($value)) ||		# Browser Un-Escape
 	/^list$/ &&	 (return (ref $value) && '     '.join("\n     ", @$value)."\n" || '     '.$value."\n") ||
 	return "  {{{ style $style not supported }}}  ";
 };
 
-sub browser_escape {
+
+__END__
+
+sub brsresc {
 	$_=shift;  
 	s/([\<\&\#\"\'\>])/'&#'.ord($1).';'/eg;
 	return $_;
 };
 
-sub browser_unescape { 
+sub brsruesc { 
 	$_=shift;  
 	s/\&\#(\d+)\;/chr($1)/eg;  
 	s/\&gt\;/\>/g;
@@ -639,13 +684,13 @@ sub browser_unescape {
 	return $_; 
 };
 
-sub proper_noun {
+sub propnoun {
 	my $val = shift;
 	$val =~ s/(^\w|\b\w)/uc($1)/eg;
 	return $val;
 };
 
-sub first_words {
+sub frstword {
 	my ($val, $ct) = @_;
 	($ct>0) || return '';
 	my @sentence = split(/\s+/, $val);
@@ -653,7 +698,7 @@ sub first_words {
 	return join(' ', @words);
 };
 
-sub paragraph_text {
+sub paratext {
 	my ($input, $cols) = @_;
 	$input =~ s/\s+$//;
 	$input || return '';
@@ -695,12 +740,12 @@ sub paragraph_text {
 	return $text;
 };
 
-sub indent_text {
+sub indtext {
 	my ($val, $ind) = @_;
 	return join("\n", map { (' ' x $ind).$_ } split(/\n/, $val));
 };
 
-sub meridian_time {
+sub meridtim {
 	my ($hour,$min) = @_;
 	my $meridian = 'am';
 	if ($hour > 11) { $meridian = 'pm';  $hour -= 12; };
@@ -709,28 +754,28 @@ sub meridian_time {
 	return $hour.':'.$min.$meridian;
 };
 
-sub abbr_date { 
+sub abbrdate { 
 	my $val = shift; 
 	$val || return '';
 	my @date = localtime($val);
 	return ($date[4]+1).'/'.$date[3].'/'.substr(($date[5]+1900),-2,2);
 };
 
-sub short_date { 
+sub shrtdate { 
 	my $val = shift; 
 	$val || return '';
 	my @date = localtime($val);
-	return ($date[4]+1).'/'.$date[3].'/'.substr(($date[5]+1900),-2,2).' '.meridian_time($date[2],$date[1]);
+	return ($date[4]+1).'/'.$date[3].'/'.substr(($date[5]+1900),-2,2).' '.meridtim($date[2],$date[1]);
 };
 
-sub time_of_day { 
+sub timeoday { 
 	my $val = shift; 
 	$val || return '';
 	my @date = localtime($val);
-	return meridian_time($date[2],$date[1]);
+	return meridtim($date[2],$date[1]);
 };
 
-sub time_24hr { 
+sub time24hr { 
 	my $val = shift; 
 	$val || return '';
 	my @date = localtime($val);
@@ -741,7 +786,7 @@ sub time_24hr {
 	return $hour.':'.$min.':'.$sec;
 };
 
-sub date_only {
+sub dateonly {
 	my $val = shift;
 	$val || return '';
 	my @date = localtime($val);
@@ -749,15 +794,15 @@ sub date_only {
 	return $mon.' '.$date[3].', '.($date[5]+1900);
 };
 
-sub full_date { 
+sub fulldate { 
 	my $val = shift;
 	$val || return '';
 	my @date = localtime($val);
 	my $mon = $Text::Merge::mon[$date[4]];
-	return $mon.' '.$date[3].', '.($date[5]+1900).' '.meridian_time($date[2],$date[1]);
+	return $mon.' '.$date[3].', '.($date[5]+1900).' '.meridtim($date[2],$date[1]);
 };
 
-sub extended_date { 
+sub extdate { 
 	my $val = shift;
 	$val || return '';
 	my @date = localtime($val);
@@ -769,18 +814,18 @@ sub extended_date {
 		$_ = ($mday % 10);
 		($_ == 1) && ($suff = 'st')  ||  ($_ == 2) && ($suff = 'nd')  ||  ($_ == 3) && ($suff = 'rd');
 	};
-	return $wday.', '.$mon.' '.$mday.$suff.', '.($date[5]+1900).' at '.meridian_time($date[2],$date[1]);
+	return $wday.', '.$mon.' '.$mday.$suff.', '.($date[5]+1900).' at '.meridtim($date[2],$date[1]);
 };
 
 
 
-sub url_encode {
+sub urlenc {
 	my $text = shift;
 	$text =~ s/([^\w\-\/\.\:\@])/$Text::Merge::hex[ord($1)]/eg;   
 	return $text;
 };
 
-sub url_decode {
+sub urldec {
 	my $text = shift;
 	$text && $text =~ s/\%([a-f0-9]{2})/chr(hex($1))/ieg;
 	return $text;

@@ -15,27 +15,27 @@ print "1..2\n";
 
 my $time = $$::data{TestDate};
 
-my $abbr_date = Text::Merge::abbr_date(0) ne ($_=Text::Merge::abbr_date($time)) && $_;
-my $short_date = Text::Merge::short_date(0) ne ($_=Text::Merge::short_date($time)) && $_;
-my $time_of_day = Text::Merge::time_of_day(0) ne ($_=Text::Merge::time_of_day($time)) && $_;
-my $time_24hr = Text::Merge::time_24hr(0) ne ($_=Text::Merge::time_24hr($time)) && $_;
-my $date_only = Text::Merge::date_only(0) ne ($_=Text::Merge::date_only($time)) && $_;
-my $full_date = Text::Merge::full_date(0) ne ($_=Text::Merge::full_date($time)) && $_;
-my $extended_date = Text::Merge::extended_date(0) ne ($_=Text::Merge::extended_date($time)) && $_;
+my $abbr_date = Text::Merge::abbrdate(0) ne ($_=Text::Merge::abbrdate($time)) && $_;
+my $short_date = Text::Merge::shrtdate(0) ne ($_=Text::Merge::shrtdate($time)) && $_;
+my $time_of_day = Text::Merge::timeoday(0) ne ($_=Text::Merge::timeoday($time)) && $_;
+my $time_24hr = Text::Merge::time24hr(0) ne ($_=Text::Merge::time24hr($time)) && $_;
+my $date_only = Text::Merge::dateonly(0) ne ($_=Text::Merge::dateonly($time)) && $_;
+my $full_date = Text::Merge::fulldate(0) ne ($_=Text::Merge::fulldate($time)) && $_;
+my $extended_date = Text::Merge::extdate(0) ne ($_=Text::Merge::extdate($time)) && $_;
 my $localtime = localtime(0) ne ($_=localtime($time)) && $_;
 
 $abbr_date && $abbr_date =~ /^\d+\/\d+\/\d{2}$/  or  die "abbr_date() failed with '$abbr_date'";
-$short_date && $short_date =~ /^\d+\/\d+\/\d{2}\s+\d+\:\d{2}[pa]m$/  or  die "short_date() failed with '$short_date'";
-$time_of_day && $time_of_day =~ /^\d+\:\d{2}[pa]m$/  or  die "time_of_day() failed with '$time_of_day'";
-$time_24hr && $time_24hr =~ /^\d\d\:\d\d(:\d\d)?$/  or  die "time_24hr() failed with '$time_24hr'";
+$short_date && $short_date =~ /^\d+\/\d+\/\d{2}\s+\d+\:\d{2}[pa]m$/  or  die "shrtdate() failed with '$short_date'";
+$time_of_day && $time_of_day =~ /^\d+\:\d{2}[pa]m$/  or  die "timeoday() failed with '$time_of_day'";
+$time_24hr && $time_24hr =~ /^\d\d\:\d\d(:\d\d)?$/  or  die "time24hr() failed with '$time_24hr'";
 $date_only && $date_only =~ /^(Jan\.|Feb\.|Mar\.|Apr\.|May|June|July|Aug\.|Sep\.|Oct\.|Nov\.|Dec\.)\s\d+\,\s\d{4}$/  
-									  or  die "date_only() failed with '$date_only'";
+									  or  die "dateonly() failed with '$date_only'";
 $full_date && $full_date =~ 
 	/^(Jan\.|Feb\.|Mar\.|Apr\.|May|June|July|Aug\.|Sep\.|Oct\.|Nov\.|Dec\.)\s\d+\,\s\d{4}\s+\d+\:\d\d[pa]m$/  
-									  or  die "full_date() failed with '$full_date'";
+									  or  die "fulldate() failed with '$full_date'";
 $extended_date && $extended_date =~ 
 	/^[MTWFS][ondayueshrit]+\,\s[JFMASOND][anuryebchpilgstmov]+\s\d+(st|nd|rd|th),\s\d{4}\sat\s\d+\:\d\d[pa]m$/
-								 or  die "extended_date() failed with '$extended_date'";
+								 or  die "extdate() failed with '$extended_date'";
 $localtime  or  die "localtime() failed with '$localtime'";
 
 print "ok\n";
