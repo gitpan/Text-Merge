@@ -2,7 +2,7 @@
 use strict;
 
 #
-# Text::Merge.pm - v.0.22 BETA
+# Text::Merge.pm - v.0.23 BETA
 #
 # (C) 1997, 1998, 1999 by Steven D. Harris. 
 # 
@@ -11,7 +11,7 @@ use strict;
 
 =head1 NAME
 
-Text::Merge - v.0.22  General purpose text/data merging methods in Perl. 
+Text::Merge - v.0.23  General purpose text/data merging methods in Perl. 
 
 =head1 SYNOPSIS
 
@@ -336,7 +336,7 @@ are using line by line mode.  In this case you should use a FileHandle or file p
 package Text::Merge;
 use FileHandle;
 
-$Text::Merge::VERSION = '0.22';
+$Text::Merge::VERSION = '0.23';
 
 @Text::Merge::mon = qw(Jan. Feb. Mar. Apr. May June July Aug. Sep. Oct. Nov. Dec.);
 @Text::Merge::month = qw(January February March April May June July August September October November December);
@@ -630,6 +630,10 @@ sub browser_escape {
 sub browser_unescape { 
 	$_=shift;  
 	s/\&\#(\d+)\;/chr($1)/eg;  
+	s/\&gt\;/\>/g;
+	s/\&lt\;/\</g;
+	s/\&amp\;/\&/g;
+	s/\&quot\;/\"/g;
 	return $_; 
 };
 

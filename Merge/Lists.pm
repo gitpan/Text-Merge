@@ -8,7 +8,7 @@ use strict;
 
 =head1 NAME
 
-Text::Merge::Lists - v.0.22 Text/data merge with lists/table support
+Text::Merge::Lists - v.0.23 Text/data merge with lists/table support
 
 =head1 SYNOPSIS
 
@@ -246,7 +246,7 @@ package Text::Merge::Lists;
 use Text::Merge;
 use FileHandle;
 
-$Text::Merge::Lists::VERSION = '0.22';
+$Text::Merge::Lists::VERSION = '0.23';
 @Text::Merge::Lists::ISA = ('Text::Merge');
 
 1;

@@ -89,4 +89,12 @@ Added 'paragraph##' and 'indent##' formats for text output.
 =======================================================================
 
 
+=======================================================================
+0.22 -> 0.23	 3/29/99 -sdh
+-----------------------------------------------------------------------
+Added conversion of &gt; &lt; &amp; and &quot; in browser_unescape() 
+in Merge.pm so that we are compatible with the CGI::Base module (and
+probably CGI.pm, too).
+=======================================================================
+
 
