@@ -2,7 +2,7 @@
 use strict;
 
 #
-# Text::Merge.pm - v.0.33 BETA
+# Text::Merge.pm - v.0.34 BETA
 #
 # (C)1997-2000 by Steven D. Harris. 
 # 
@@ -11,7 +11,7 @@ use strict;
 
 =head1 NAME
 
-Text::Merge - v.0.33  General purpose text/data merging methods in Perl. 
+Text::Merge - v.0.34  General purpose text/data merging methods in Perl. 
 
 =head1 SYNOPSIS
 
@@ -83,7 +83,7 @@ referenced in a hash, keyed by the action name used in the template.
 Here is a good example of a publishing call in Perl:
 
 	$obj = new Text::Merge;
-	%data = ( 'Name'=>'John Smith', 'Age'=>33, 'Sex'=>'not enough' );
+	%data = ( 'Name'=>'John Smith', 'Age'=>34, 'Sex'=>'not enough' );
 	%actions = ( 'Mock' => \&mock_person,  'Laud' => \&laud_person );
 	$obj->publish($template, \%data, \%actions);
 
@@ -272,7 +272,7 @@ the data HASH reference, and the key 'Actions' associated with the action HASH r
 a previous example might look like this:
 
 	$obj = new Text::Merge;
-	$data = { 'Name'=>'John Smith', 'Age'=>33, 'Sex'=>'not enough' };
+	$data = { 'Name'=>'John Smith', 'Age'=>34, 'Sex'=>'not enough' };
 	$actions = { 'Mock' => \&mock_person,  'Laud' => \&laud_person };
 	$item = { 'Data' => $data,  'Actions' => $actions };
 	$obj->publish($template, $item);
@@ -343,7 +343,7 @@ package Text::Merge;
 use FileHandle;
 use AutoLoader 'AUTOLOAD';
 
-$Text::Merge::VERSION = '0.33';
+$Text::Merge::VERSION = '0.34';
 
 @Text::Merge::mon = qw(Jan. Feb. Mar. Apr. May June July Aug. Sep. Oct. Nov. Dec.);
 @Text::Merge::month = qw(January February March April May June July August September October November December);
@@ -453,6 +453,7 @@ sub handle_tag {
 	my @formats = split(/\:/, ($formats || ''));
 	my $format;
 	my $value = $$item{Data}{$field} || '';
+	$value=$$value[0] if ref $value eq 'ARRAY' && ((scalar @$value)==1);
 	foreach $format (@formats) { 
 		$value = $self->convert_value($value, $format, $item); 
 	};
